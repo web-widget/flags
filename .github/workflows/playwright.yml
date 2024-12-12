@@ -1,4 +1,9 @@
 name: Playwright Tests
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
 on:
   push:
     branches: [main]
