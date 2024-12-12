@@ -7,6 +7,7 @@
       "cache": false
     },
     "build": {
+      "env": ["EDGE_CONFIG", "FLAGS_SECRET"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
