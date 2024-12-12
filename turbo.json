@@ -23,7 +23,8 @@
       "dependsOn": ["^start"]
     },
     "test:e2e": {
-      "dependsOn": ["^build", "^start"]
+      "dependsOn": ["^build", "^start"],
+      "env": ["FLAGS_SECRET"]
     },
     "publint": {
       "dependsOn": ["^build"]
