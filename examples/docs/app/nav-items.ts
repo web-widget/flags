@@ -33,11 +33,13 @@ export const navItems: Item[] = [
         title: 'Why Feature Flags?',
         slug: 'why-feature-flags',
         url: '/philosophy/why-feature-flags',
+        nav: 'hidden',
       },
       {
         title: 'Why Experimentation?',
         slug: 'why-experimentation',
         url: '/philosophy/why-experimentation',
+        nav: 'hidden',
       },
       {
         title: 'Flags as Code',
