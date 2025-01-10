@@ -105,6 +105,11 @@ export default function Page() {
           description="Using feature flags in Pages Router on static pages"
           href="/examples/pages-router-precomputed"
         />
+        <ConceptCard
+          title="Suspense Fallbacks"
+          description="Using prerendered suspense fallbacks"
+          href="/examples/suspense-fallbacks"
+        />
       </div>
     </Content>
   );
