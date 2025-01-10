@@ -95,6 +95,16 @@ export default function Page() {
           description="Manually using feature flags in Edge Middleware"
           href="/examples/feature-flags-in-edge-middleware"
         />
+        <ConceptCard
+          title="Pages Router (Basic)"
+          description="Using feature flags in Pages Router on dynamic pages"
+          href="/examples/pages-router-dynamic"
+        />
+        <ConceptCard
+          title="Pages Router (Precomputed)"
+          description="Using feature flags in Pages Router on static pages"
+          href="/examples/pages-router-precomputed"
+        />
       </div>
     </Content>
   );
