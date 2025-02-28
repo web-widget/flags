@@ -5,7 +5,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "install:compat": "node scripts/replace-workspace-version.mjs && pnpm install",
+    "install:compat": "node scripts/replace-workspace-version.mjs && npm install",
     "lint": "next lint",
     "start": "next start"
   },
