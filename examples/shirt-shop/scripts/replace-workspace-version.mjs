@@ -1,12 +1,10 @@
 import fs from 'fs/promises';
 
+const templateProjectId = 'prj_6Km3AvCCo0QgJSoEb3cFQwwB9x0Y';
+
 async function prepareTemplate() {
-  if (
-    process.env.CI === '1' &&
-    process.env.VERCEL_PROJECT_ID === 'prj_6Km3AvCCo0QgJSoEb3cFQwwB9x0Y'
-  ) {
-    return;
-  }
+  if (process.env.CI !== '1') return;
+  if (process.env.VERCEL_PROJECT_ID === templateProjectId) return;
 
   // Read the package.json
   const packageJson = JSON.parse(await fs.readFile('./package.json', 'utf8'));
