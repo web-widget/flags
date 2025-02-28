@@ -1,10 +1,19 @@
 import fs from 'fs/promises';
-
+import { execSync } from 'child_process';
 const templateProjectId = 'prj_6Km3AvCCo0QgJSoEb3cFQwwB9x0Y';
 
-async function prepareTemplate() {
-  if (process.env.CI !== '1') return;
-  if (process.env.VERCEL_PROJECT_ID === templateProjectId) return;
+function install(packageManager) {
+  return execSync(`${packageManager} install`, { stdio: 'inherit' });
+}
+
+async function main() {
+  if (
+    process.env.CI !== '1' ||
+    process.env.VERCEL_PROJECT_ID === templateProjectId
+  ) {
+    install('pnpm');
+    return;
+  }
 
   // Read the package.json
   const packageJson = JSON.parse(await fs.readFile('./package.json', 'utf8'));
@@ -28,10 +37,7 @@ async function prepareTemplate() {
     JSON.stringify(templatePackageJson, null, 2),
   );
 
-  console.log('Created');
-  console.log(JSON.stringify(templatePackageJson, null, 2));
-
-  console.log('Replaced workspace dependencies with real versions');
+  install('npm');
 }
 
-prepareTemplate();
+main();
