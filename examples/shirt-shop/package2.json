@@ -5,8 +5,8 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "install:compat": "node scripts/replace-workspace-version.mjs && pnpm install",
     "lint": "next lint",
+    "replace-workspace-version": "node scripts/replace-workspace-version.mjs",
     "start": "next start"
   },
   "dependencies": {
@@ -21,7 +21,7 @@
     "@vercel/edge-config": "1.4.0",
     "@vercel/toolbar": "0.1.33",
     "clsx": "2.1.1",
-    "flags": "workspace:*",
+    "flags": "latest",
     "js-xxhash": "4.0.0",
     "nanoid": "5.1.2",
     "next": "15.2.0",
