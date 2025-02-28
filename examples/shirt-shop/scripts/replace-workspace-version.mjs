@@ -23,7 +23,15 @@ async function prepareTemplate() {
   }
 
   // Write the template package.json
-  await fs.writeFile('./package.json', JSON.stringify(templatePackageJson));
+  await fs.writeFile(
+    './package.json',
+    JSON.stringify(templatePackageJson, null, 2),
+  );
+
+  console.log('Created');
+  console.log(JSON.stringify(templatePackageJson, null, 2));
+
+  console.log('Replaced workspace dependencies with real versions');
 }
 
 prepareTemplate();
