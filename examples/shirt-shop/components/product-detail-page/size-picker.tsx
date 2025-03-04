@@ -2,7 +2,7 @@
 
 import { Radio, RadioGroup } from '@headlessui/react';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useProductDetailPageContext } from '@/components/utils/product-detail-page-context';
 
 const sizes = [
   { name: 'XXS', inStock: true },
@@ -14,7 +14,8 @@ const sizes = [
 ];
 
 export function SizePicker() {
-  const [selectedSize, setSelectedSize] = useState(sizes[0]);
+  const { size, setSize } = useProductDetailPageContext();
+  const selectedSize = sizes.find((s) => s.name === size) || sizes[0];
 
   return (
     <div className="mt-8">
@@ -25,7 +26,7 @@ export function SizePicker() {
       <fieldset aria-label="Choose a size" className="mt-2">
         <RadioGroup
           value={selectedSize}
-          onChange={setSelectedSize}
+          onChange={(newSize) => setSize(newSize.name)}
           className="grid grid-cols-3 gap-3 sm:grid-cols-6"
         >
           {sizes.map((size) => (

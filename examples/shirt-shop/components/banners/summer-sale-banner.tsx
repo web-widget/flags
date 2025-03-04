@@ -1,17 +1,9 @@
 'use client';
 
-import pool from '@/public/images/pool.jpg';
 import Image from 'next/image';
-import { track } from '@vercel/analytics';
-import { useEffect } from 'react';
+import pool from '@/public/images/pool.jpg';
 
-export function SummerBanner(props: { show: boolean }) {
-  useEffect(() => {
-    if (props.show) track('summer_banner:viewed');
-  }, [props.show]);
-
-  if (!props.show) return null;
-
+export function SummerSaleBanner({ onClick }: { onClick: () => void }) {
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
@@ -35,10 +27,8 @@ export function SummerBanner(props: { show: boolean }) {
               </p>
               <button
                 type="button"
-                className="mt-8 block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto"
-                onClick={() => {
-                  track('summer_banner:clicked');
-                }}
+                className="cursor-pointer mt-8 block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto"
+                onClick={onClick}
               >
                 Shop now
               </button>
