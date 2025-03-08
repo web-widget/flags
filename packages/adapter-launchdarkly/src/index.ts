@@ -116,11 +116,3 @@ export const ldAdapter: AdapterResponse = {
     return getOrCreateDeaultAdapter().ldClient;
   },
 };
-
-/**
-/**
- * This is the previous name for the LaunchDarkly adapter.
- *
- * @deprecated Use `ldAdapter` instead.
- */
-export const launchDarkly = ldAdapter;
