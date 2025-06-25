@@ -749,12 +749,18 @@ importers:
       '@sveltejs/kit':
         specifier: '*'
         version: 2.19.0(@sveltejs/vite-plugin-svelte@4.0.4)(svelte@5.23.0)(vite@5.1.1)
+      '@web-widget/helpers':
+        specifier: '*'
+        version: 1.59.0(unctx@2.4.1)
+      '@web-widget/schema':
+        specifier: '*'
+        version: 1.59.0
       jose:
         specifier: ^5.2.1
         version: 5.10.0
       react-dom:
         specifier: '*'
-        version: 19.0.0(react@19.2.0-canary-526dd340-20250602)
+        version: 19.0.0(react@19.2.0-canary-06e89951-20250620)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 0.17.3
@@ -776,10 +782,10 @@ importers:
         version: 2.6.4(@types/node@20.11.17)(typescript@5.6.3)
       next:
         specifier: 15.1.4
-        version: 15.1.4(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@19.0.0)(react@19.2.0-canary-526dd340-20250602)
+        version: 15.1.4(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@19.0.0)(react@19.2.0-canary-06e89951-20250620)
       react:
         specifier: canary
-        version: 19.2.0-canary-526dd340-20250602
+        version: 19.2.0-canary-06e89951-20250620
       tsconfig:
         specifier: workspace:*
         version: link:../../tooling/tsconfig
@@ -1582,6 +1588,16 @@ packages:
   /@edge-runtime/cookies@5.0.2:
     resolution: {integrity: sha512-Sd8LcWpZk/SWEeKGE8LT6gMm5MGfX/wm+GPnh1eBEtCpya3vYqn37wYknwAHw92ONoyyREl1hJwxV/Qx2DWNOg==}
     engines: {node: '>=16'}
+    dev: false
+
+  /@edge-runtime/cookies@6.0.0:
+    resolution: {integrity: sha512-VVO/8AwC2qVbygLb2IOkX1zWFx2yWIHzFv4D602CTnoRffd/+cdcXqpSydKaedFrk7a1dRYXbWwjzfV/gwZ2Gw==}
+    engines: {node: '>=18'}
+    dev: false
+
+  /@edge-runtime/user-agent@3.0.0:
+    resolution: {integrity: sha512-gBRMdel9SMPjHO573dIZ71BRaIVmkV23P7SGZ4UVYO6KYdxlBeWqkD+fn9QalNqi1vtpI/guRCNKPmslsGCeTw==}
+    engines: {node: '>=18'}
     dev: false
 
   /@emnapi/runtime@1.3.1:
@@ -6458,6 +6474,52 @@ packages:
       pretty-format: 29.7.0
     dev: true
 
+  /@web-widget/action@1.59.0:
+    resolution: {integrity: sha512-yPs51nJ2NobCxIOtgsiHwoejfluG+jXUqPMfRdw5c8mpWS5kU9cySPqALOXVrGieasb/QJDVH1HBXRs2uS1wyg==}
+    dev: false
+
+  /@web-widget/context@1.59.0(unctx@2.4.1):
+    resolution: {integrity: sha512-LSOo5CiQcV+WZW6V3yGncsQOu1792+BhYRZf2q7Uqf95QypuKr8Xdbhk84S2+N4Uep9fYXQqCGPjjZyYqaqO+A==}
+    peerDependencies:
+      unctx: ^2.3.1
+    dependencies:
+      '@web-widget/purify': 1.59.0
+      '@web-widget/schema': 1.59.0
+      unctx: 2.4.1
+    dev: false
+
+  /@web-widget/helpers@1.59.0(unctx@2.4.1):
+    resolution: {integrity: sha512-zvzOmBQsI68FjIag0bT0RptroW0uP+fn1xNRXyVZRoYuQatP0gFHxxVExMVO28Y0CZmL4m9LYfL2/nxGjUTdfw==}
+    dependencies:
+      '@edge-runtime/cookies': 6.0.0
+      '@edge-runtime/user-agent': 3.0.0
+      '@web-widget/action': 1.59.0
+      '@web-widget/context': 1.59.0(unctx@2.4.1)
+      '@web-widget/lifecycle-cache': 1.59.0(unctx@2.4.1)
+      '@web-widget/purify': 1.59.0
+      '@web-widget/schema': 1.59.0
+    transitivePeerDependencies:
+      - unctx
+    dev: false
+
+  /@web-widget/lifecycle-cache@1.59.0(unctx@2.4.1):
+    resolution: {integrity: sha512-Z9+5w/uQ5NVDWMljNPpVIzX0340ZJu+vJAqOzjS7YuN2wJo0M5Hh6Xpfaf9SMkCpLfZO5naRia2477wAc8Mt/A==}
+    dependencies:
+      '@web-widget/context': 1.59.0(unctx@2.4.1)
+      '@web-widget/purify': 1.59.0
+      '@web-widget/schema': 1.59.0
+    transitivePeerDependencies:
+      - unctx
+    dev: false
+
+  /@web-widget/purify@1.59.0:
+    resolution: {integrity: sha512-JIq2H1bK9WkpEePBAD5MvHhZBulc7j+4XyV7276Dm+Ul7IopHbYW5u4vx4CTj0wmKfuIbF/2hCd1NKmEZ+b2Zg==}
+    dev: false
+
+  /@web-widget/schema@1.59.0:
+    resolution: {integrity: sha512-v2H29zMCAvXTHk49dTzqhjjvp9G+O1ySGAbnJgKxcy1DI+j+VO324RcB74S91Bajn9rQMC3xrzVriL8DPN1ndQ==}
+    dev: false
+
   /abbrev@3.0.0:
     resolution: {integrity: sha512-+/kfrslGQ7TNV2ecmQwMJj/B65g5KVq1/L3SGVZ3tCYGqlzFuFCGBZJtMP99wH3NpEUyAjn0zPdPUg0D+DwrOA==}
     engines: {node: ^18.17.0 || >=20.5.0}
@@ -8953,7 +9015,6 @@ packages:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
     dependencies:
       '@types/estree': 1.0.6
-    dev: true
 
   /esutils@2.0.3:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
@@ -11320,7 +11381,7 @@ packages:
       - babel-plugin-macros
     dev: false
 
-  /next@15.1.4(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@19.0.0)(react@19.2.0-canary-526dd340-20250602):
+  /next@15.1.4(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@19.0.0)(react@19.2.0-canary-06e89951-20250620):
     resolution: {integrity: sha512-mTaq9dwaSuwwOrcu3ebjDYObekkxRnXpuVL21zotM8qE2W0HBOdVIdg2Li9QjMEZrj73LN96LcWcz62V19FjAg==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
     hasBin: true
@@ -11348,9 +11409,9 @@ packages:
       busboy: 1.6.0
       caniuse-lite: 1.0.30001704
       postcss: 8.4.31
-      react: 19.2.0-canary-526dd340-20250602
-      react-dom: 19.0.0(react@19.2.0-canary-526dd340-20250602)
-      styled-jsx: 5.1.6(@babel/core@7.26.10)(react@19.2.0-canary-526dd340-20250602)
+      react: 19.2.0-canary-06e89951-20250620
+      react-dom: 19.0.0(react@19.2.0-canary-06e89951-20250620)
+      styled-jsx: 5.1.6(@babel/core@7.26.10)(react@19.2.0-canary-06e89951-20250620)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.1.4
       '@next/swc-darwin-x64': 15.1.4
@@ -12205,12 +12266,12 @@ packages:
       scheduler: 0.25.0
     dev: false
 
-  /react-dom@19.0.0(react@19.2.0-canary-526dd340-20250602):
+  /react-dom@19.0.0(react@19.2.0-canary-06e89951-20250620):
     resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
     peerDependencies:
       react: ^19.0.0
     dependencies:
-      react: 19.2.0-canary-526dd340-20250602
+      react: 19.2.0-canary-06e89951-20250620
       scheduler: 0.25.0
 
   /react-dom@19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028):
@@ -12315,8 +12376,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
-  /react@19.2.0-canary-526dd340-20250602:
-    resolution: {integrity: sha512-Ebiwh5tDLCZx7z5KYQQ3IPezOKbgN2ZPGXLh/akSEd3ve6NhMj/Zy+x7lnMVweFil29iC16ujVeLCGU5wf+R5w==}
+  /react@19.2.0-canary-06e89951-20250620:
+    resolution: {integrity: sha512-qCaDc5HXpKJt2e9i3n+0J0pSAVe9lEgWiBBgdkU1cOABTdwr0ESHWjPJ7vyGGWJutWESZhF6sEwvpE6JeCrU+g==}
     engines: {node: '>=0.10.0'}
 
   /read-cache@1.0.0:
@@ -13206,7 +13267,7 @@ packages:
       react: 19.0.0-rc.1
     dev: false
 
-  /styled-jsx@5.1.6(@babel/core@7.26.10)(react@19.2.0-canary-526dd340-20250602):
+  /styled-jsx@5.1.6(@babel/core@7.26.10)(react@19.2.0-canary-06e89951-20250620):
     resolution: {integrity: sha512-qSVyDTeMotdvQYoHWLNGwRFJHC+i+ZvdBRYosOFgC+Wg1vx4frN2/RG/NA7SYqqvKNLf39P2LSRA2pu6n0XYZA==}
     engines: {node: '>= 12.0.0'}
     peerDependencies:
@@ -13221,7 +13282,7 @@ packages:
     dependencies:
       '@babel/core': 7.26.10
       client-only: 0.0.1
-      react: 19.2.0-canary-526dd340-20250602
+      react: 19.2.0-canary-06e89951-20250620
     dev: true
 
   /sucrase@3.35.0:
@@ -13873,6 +13934,15 @@ packages:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
+  /unctx@2.4.1:
+    resolution: {integrity: sha512-AbaYw0Nm4mK4qjhns67C+kgxR2YWiwlDBPzxrN8h8C6VtAdCgditAY5Dezu3IJy4XVqAnbrXt9oQJvsn3fyozg==}
+    dependencies:
+      acorn: 8.14.1
+      estree-walker: 3.0.3
+      magic-string: 0.30.17
+      unplugin: 2.3.5
+    dev: false
+
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
@@ -13933,6 +14003,15 @@ packages:
     resolution: {integrity: sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==}
     engines: {node: '>= 4.0.0'}
     dev: true
+
+  /unplugin@2.3.5:
+    resolution: {integrity: sha512-RyWSb5AHmGtjjNQ6gIlA67sHOsWpsbWpwDokLwTcejVdOjEkJZh7QKu14J00gDDVSh8kGH4KYC/TNBceXFZhtw==}
+    engines: {node: '>=18.12.0'}
+    dependencies:
+      acorn: 8.14.1
+      picomatch: 4.0.2
+      webpack-virtual-modules: 0.6.2
+    dev: false
 
   /update-browserslist-db@1.1.3(browserslist@4.24.4):
     resolution: {integrity: sha512-UxhIZQ+QInVdunkDAaiazvvT/+fXL5Osr0JZlJulepYu6Jd7qJtDZjlur0emRlT71EN3ScPoE7gvsuIKKNavKw==}
@@ -14431,6 +14510,10 @@ packages:
   /webidl-conversions@4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
+
+  /webpack-virtual-modules@0.6.2:
+    resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
+    dev: false
 
   /whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
