@@ -79,12 +79,13 @@ Demonstrates feature flags on pages where content is **predetermined by the syst
 **Implementation:**
 
 ```typescript
-// Flags determined by system logic
-const flag1 = await firstMarketingABTest(request);
-const flag2 = await secondMarketingABTest(request);
+// Middleware precomputes flags using the official SDK utility
+const flagsCode = await precompute(marketingFlags, request);
+request.headers.set('x-flags-code', flagsCode);
 
-// Precomputed for performance
-const flagsCode = request.headers.get('x-flags-code');
+// Route handler evaluates flags with precomputed code
+const flag1 = await firstMarketingABTest(flagsCode, marketingFlags);
+const flag2 = await secondMarketingABTest(flagsCode, marketingFlags);
 ```
 
 ### 3. Marketing Pages (Manual Approach)
@@ -120,20 +121,21 @@ export const firstMarketingABTest = flag<boolean>({
 
 ### Precomputation Strategy
 
-For content-driven pages, we use a header-based precomputation approach:
+For content-driven pages, we use the official `flags/web-router` precomputation approach:
 
-1. **Middleware** computes flag combinations and sets custom header
-2. **Route handler** reads the precomputed result
+1. **Middleware** uses `precompute()` to calculate flag combinations hash
+2. **Route handler** evaluates flags with precomputed code and configuration
 3. **Clean URLs** - no flag codes exposed to users
-4. **Performance** - enables caching and optimization
+4. **Performance** - enables intelligent caching with `Vary` header
 
 ```typescript
-// Middleware sets header
-const flagsCode = await computeFlagsCode(request);
+// Middleware uses official SDK precompute function
+import { precompute } from 'flags/web-router';
+const flagsCode = await precompute(marketingFlags, request);
 request.headers.set('x-flags-code', flagsCode);
 
-// Route reads header
-const flagsCode = request.headers.get('x-flags-code') || 'unknown';
+// Route evaluates flags with precomputed code
+const flag1 = await firstMarketingABTest(flagsCode, marketingFlags);
 ```
 
 ### Visitor ID Management
@@ -161,7 +163,27 @@ The system automatically manages visitor IDs for consistent flag evaluation:
 1. **Clean URLs** - No flag codes in user-visible URLs
 2. **Better SEO** - Consistent URLs for search engines
 3. **Enhanced UX** - No confusing URL parameters
-4. **Cacheable** - Enables CDN and browser caching strategies
+4. **Intelligent Caching** - Enables CDN and browser caching with proper cache differentiation
+
+### Intelligent Caching Strategy
+
+The implementation uses an intelligent caching approach with HTTP headers:
+
+```typescript
+// Middleware computes flags and sets Vary header
+const flagsCode = await precompute(marketingFlags, request);
+request.headers.set('x-flags-code', flagsCode);
+
+const response = await next();
+response.headers.append('vary', 'x-flags-code');
+```
+
+**How it works:**
+
+- Each unique `flagsCode` represents a specific combination of flag values
+- The `Vary: x-flags-code` header tells caches to store separate versions for each flags combination
+- Users with the same flags combination get cached responses, improving performance
+- Different flag combinations are cached separately, ensuring correct content delivery
 
 ### Visitor ID Strategy
 
@@ -176,27 +198,38 @@ const visitorId = crypto.randomUUID().replace(/-/g, '');
 ### Middleware Pattern
 
 ```typescript
+import { precompute } from 'flags/web-router';
+
 // Centralized visitor ID and flag preprocessing
 export const handler = defineMiddlewareHandler(async (ctx, next) => {
   // Set visitor ID
   request.headers.set('x-visitorId', visitorId);
 
-  // Precompute flags
-  const flagsCode = await computeFlagsCode(request);
+  // Use official SDK precompute function
+  const flagsCode = await precompute(marketingFlags, request);
   request.headers.set('x-flags-code', flagsCode);
 
-  return next();
+  const response = await next();
+
+  // Enable intelligent caching based on flags code
+  response.headers.append('vary', 'x-flags-code');
+
+  return response;
 });
 ```
 
 ### Route Handler Pattern
 
 ```typescript
-// Clean separation of concerns
+// Clean separation of concerns with precomputed flags
 export const handler = defineRouteHandler({
   async GET({ request, render }) {
-    const flag1 = await firstMarketingABTest(request);
-    const flag2 = await secondMarketingABTest(request);
+    // Get precomputed flags code from middleware
+    const flagsCode = request.headers.get('x-flags-code') || 'unknown';
+
+    // Evaluate flags with precomputed code and configuration
+    const flag1 = await firstMarketingABTest(flagsCode, marketingFlags);
+    const flag2 = await secondMarketingABTest(flagsCode, marketingFlags);
 
     return render({ data: { flag1, flag2 } });
   },
@@ -224,7 +257,7 @@ The marketing pages show implementation details including:
 
 1. Define flag in `config/flags.ts`
 2. Add to `marketingFlags` array in `config/precomputed-flags.ts`
-3. Use in route handlers with `await flagName(request)`
+3. Use in route handlers with `await flagName(flagsCode, marketingFlags)`
 
 ## 📚 Related Documentation
 

@@ -4,6 +4,8 @@ import {
   defineRouteHandler,
 } from '@web-widget/helpers';
 import { firstMarketingABTest, secondMarketingABTest } from '#config/flags';
+import { marketingFlags } from '#config/precomputed-flags';
+
 import Layout from '../(components)/Layout.tsx';
 import VisitorIdControls from './VisitorIdControls@widget.tsx';
 import styles from './marketing-pages.module.css';
@@ -15,20 +17,22 @@ export const meta = defineMeta({
 interface MarketingData {
   flag1: boolean;
   flag2: boolean;
-  flagsCode: string;
 }
 
 export const handler = defineRouteHandler<MarketingData>({
   async GET({ request, render }) {
     // Get the precomputed flags code from the custom header set by middleware
+    // This header is set by the middleware using the flags/web-router precompute function
     const flagsCode = request.headers.get('x-flags-code') || 'unknown';
 
-    // Evaluate flags normally (these should match the precomputed results)
-    const flag1 = await firstMarketingABTest(request);
-    const flag2 = await secondMarketingABTest(request);
+    // Evaluate flags using the precomputed flags code and the flags configuration
+    // The precompute function has already calculated this combination, so we pass it as a parameter
+    // This approach is more efficient than re-evaluating flags from scratch
+    const flag1 = await firstMarketingABTest(flagsCode, marketingFlags);
+    const flag2 = await secondMarketingABTest(flagsCode, marketingFlags);
 
     return render({
-      data: { flag1, flag2, flagsCode },
+      data: { flag1, flag2 },
     });
   },
 });
@@ -36,7 +40,7 @@ export const handler = defineRouteHandler<MarketingData>({
 export default defineRouteComponent<MarketingData>(function MarketingPagesPage({
   data,
 }) {
-  const { flag1, flag2, flagsCode } = data;
+  const { flag1, flag2 } = data;
 
   return (
     <Layout>
@@ -120,50 +124,6 @@ export default defineRouteComponent<MarketingData>(function MarketingPagesPage({
               </p>
             </div>
           )}
-        </div>
-
-        <div
-          style={{
-            marginTop: '2rem',
-            padding: '1rem',
-            backgroundColor: '#f8fafc',
-            borderRadius: '8px',
-            border: '1px solid #e2e8f0',
-          }}
-        >
-          <h3
-            style={{
-              margin: '0 0 0.5rem 0',
-              fontSize: '1rem',
-              color: '#374151',
-            }}
-          >
-            🔧 Implementation Details
-          </h3>
-          <p
-            style={{
-              margin: '0 0 0.5rem 0',
-              fontSize: '0.875rem',
-              color: '#64748b',
-            }}
-          >
-            <strong>Precomputed Flags Code:</strong>{' '}
-            <code
-              style={{
-                fontFamily: 'monospace',
-                background: '#fff',
-                padding: '0.25rem',
-                borderRadius: '4px',
-              }}
-            >
-              {flagsCode}
-            </code>
-          </p>
-          <p style={{ margin: '0', fontSize: '0.875rem', color: '#64748b' }}>
-            This example uses header-based precomputation (
-            <code>x-flags-code</code>) instead of URL redirection, keeping the
-            user-facing URL clean.
-          </p>
         </div>
 
         <VisitorIdControls />

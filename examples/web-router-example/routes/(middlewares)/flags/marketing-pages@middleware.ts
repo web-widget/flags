@@ -1,7 +1,11 @@
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import { ResponseCookies, RequestCookies } from '@web-widget/helpers/headers';
 import { redirect } from '@web-widget/helpers/navigation';
-import { computeFlagsCode, createVisitorId } from '#config/precomputed-flags';
+import { createVisitorId, marketingFlags } from '#config/precomputed-flags';
+import { precompute } from 'flags/web-router';
+
+// Header name for the precomputed flags code
+const FLAGS_CODE_HEADER = 'x-flags-code';
 
 export const handler = defineMiddlewareHandler(async (ctx, next) => {
   const { request } = ctx;
@@ -20,6 +24,7 @@ export const handler = defineMiddlewareHandler(async (ctx, next) => {
   }
 
   // Always ensure visitor ID is available in headers for flag evaluation
+  // This header is used by the flags during precomputation
   request.headers.set('x-visitorId', visitorId);
 
   // If reset was requested, redirect to clean URL without parameter
@@ -34,12 +39,19 @@ export const handler = defineMiddlewareHandler(async (ctx, next) => {
     return response;
   }
 
-  // Compute and set the flags code header
-  const flagsCode = await computeFlagsCode(request);
-  request.headers.set('x-flags-code', flagsCode);
+  // Use the flags/web-router precompute function to calculate the flags code
+  // This efficiently computes a hash representing the current flag combination
+  // for this specific visitor, enabling caching and performance optimization
+  const flagsCode = await precompute(marketingFlags, request);
+  request.headers.set(FLAGS_CODE_HEADER, flagsCode);
 
   // Continue to the route handler
   const response = await next();
+
+  // Set the Vary header to enable intelligent caching based on flags code
+  // This tells caches (CDN, browser) to store separate versions for different flag combinations
+  // Users with the same flagsCode will get cached responses, improving performance
+  response.headers.append('vary', FLAGS_CODE_HEADER);
 
   // Set the visitor ID cookie if it wasn't already set
   if (!cookieStore.has('visitorId')) {
