@@ -7,62 +7,50 @@ import {
 export const handler = defineMiddlewareHandler(async (ctx, next) => {
   const { request } = ctx;
   const url = new URL(request.url);
+
+  // Parse cookies
   const cookies = request.headers.get('cookie') || '';
-
-  // Only handle the exact /flags/marketing-pages path
-  if (url.pathname !== '/flags/marketing-pages') {
-    return next();
-  }
-
-  // Check if visitor ID exists in cookies
   const visitorIdMatch = cookies.match(/visitorId=([^;]+)/);
   let visitorId = visitorIdMatch ? visitorIdMatch[1] : null;
 
   // If no visitor ID, create one
   if (!visitorId) {
     visitorId = createVisitorId();
+  }
 
-    // Create a new request with the visitor ID in headers for flag evaluation
-    const modifiedRequest = new Request(request.url, {
-      method: request.method,
-      headers: {
-        ...Object.fromEntries(request.headers.entries()),
-        'x-visitorId': visitorId,
-      },
-      body: request.body,
-    });
+  // Always ensure visitor ID is available in headers for flag evaluation
+  request.headers.set('x-visitorId', visitorId);
 
-    // Compute the internal route with the new visitor ID
+  // Only redirect if we're on the exact /flags/marketing-pages path
+  if (url.pathname === '/flags/marketing-pages') {
+    // Compute the internal route
     const internalRoute = await computeInternalRoute(
       '/flags/marketing-pages',
-      modifiedRequest,
+      request,
     );
 
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: internalRoute,
-        'Set-Cookie': `visitorId=${visitorId}; Path=/; HttpOnly`,
-      },
-    });
+    // Always redirect to the internal route
+    if (internalRoute !== '/flags/marketing-pages') {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: internalRoute,
+          'Set-Cookie': `visitorId=${visitorId}; Path=/; HttpOnly`,
+        },
+      });
+    }
   }
 
-  // If visitor ID exists, compute the internal route
-  const internalRoute = await computeInternalRoute(
-    '/flags/marketing-pages',
-    request,
-  );
+  // Continue to the route handler (for both base path and internal routes)
+  const response = await next();
 
-  // If the computed route is different from current path, redirect
-  if (internalRoute !== '/flags/marketing-pages') {
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: internalRoute,
-      },
-    });
+  // Set the visitor ID cookie if it wasn't already set
+  if (!visitorIdMatch) {
+    response.headers.set(
+      'Set-Cookie',
+      `visitorId=${visitorId}; Path=/; HttpOnly`,
+    );
   }
 
-  // Continue to the route handler if no redirect is needed
-  return next();
+  return response;
 });
