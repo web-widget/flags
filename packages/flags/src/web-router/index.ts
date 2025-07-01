@@ -40,6 +40,8 @@ import {
 } from './precompute';
 import { tryGetSecret } from './env';
 
+export type { Flag } from './types';
+
 declare module '@web-widget/schema' {
   interface State {
     _flag: FlagContext;
