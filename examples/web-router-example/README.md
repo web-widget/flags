@@ -229,7 +229,7 @@ The marketing pages show implementation details including:
 ## 📚 Related Documentation
 
 - [Flags SDK Documentation](https://flags-sdk.dev)
-- [Web Router Documentation](https://web-router.dev)
+- [Web Router Documentation](https://github.com/web-widget/web-widget)
 - [GitHub Repository](https://github.com/vercel/flags)
 
 ## 🤝 Contributing

@@ -32,6 +32,9 @@ export default defineConfig({
       ],
     },
   },
+  ssr: {
+    target: 'node',
+  },
   test: {
     api: {
       port: Number(process.env.TEST_PORT ?? 51204),
