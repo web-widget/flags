@@ -2,7 +2,7 @@ import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
   computeInternalRoute,
   createVisitorId,
-} from '../../config/precomputed-flags.ts';
+} from '#config/precomputed-flags';
 
 export const handler = defineMiddlewareHandler(async (ctx, next) => {
   const { request } = ctx;

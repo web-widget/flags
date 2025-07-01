@@ -5,6 +5,7 @@ import { webRouterPlugin } from '@web-widget/vite-plugin';
 import reactWebWidgetPlugin from '@web-widget/react/vite';
 import vuePlugin from '@vitejs/plugin-vue';
 import vueWebWidgetPlugin from '@web-widget/vue/vite';
+import { builtinModules } from 'module';
 
 export default defineConfig({
   plugins: [
@@ -24,6 +25,12 @@ export default defineConfig({
   ],
   build: {
     target: ['chrome76'],
+    rollupOptions: {
+      external: [
+        ...builtinModules,
+        ...builtinModules.map((module) => `node:${module}`),
+      ],
+    },
   },
   test: {
     api: {

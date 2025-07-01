@@ -3,7 +3,7 @@ import {
   defineMeta,
   defineRouteHandler,
 } from '@web-widget/helpers';
-import { showNewDashboard } from '../../../config/flags.ts';
+import { showNewDashboard } from '#config/flags';
 import Layout from '../(components)/Layout.tsx';
 import FlagControls from '../(components)/FlagControls@widget.tsx';
 import styles from './index.module.css';

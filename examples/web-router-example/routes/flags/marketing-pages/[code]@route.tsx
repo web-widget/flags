@@ -3,10 +3,7 @@ import {
   defineMeta,
   defineRouteHandler,
 } from '@web-widget/helpers';
-import {
-  firstMarketingABTest,
-  secondMarketingABTest,
-} from '../../../config/flags.ts';
+import { firstMarketingABTest, secondMarketingABTest } from '#config/flags';
 import Layout from '../(components)/Layout.tsx';
 import VisitorIdControls from './VisitorIdControls@widget.tsx';
 import styles from './marketing-pages.module.css';

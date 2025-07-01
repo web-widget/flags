@@ -3,7 +3,7 @@ import {
   composeMiddleware,
 } from '@web-widget/helpers';
 import { createHandle } from 'flags/web-router';
-import * as flags from '../config/flags';
+import * as flags from '#config/flags';
 
 const poweredByMiddleware = defineMiddlewareHandler(
   async function poweredBy(ctx, next) {
