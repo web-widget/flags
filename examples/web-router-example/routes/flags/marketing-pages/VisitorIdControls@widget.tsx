@@ -2,10 +2,9 @@ import styles from '../(components)/FlagControls.module.css';
 
 export default function VisitorIdControls() {
   const resetVisitorId = () => {
-    // Clear the visitor ID cookie and let the middleware create a new one
-    document.cookie =
-      'visitorId=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    window.location.href = '/flags/marketing-pages';
+    // Use URL parameter to signal the server to reset the visitor ID
+    // This works with HttpOnly cookies that can't be modified by JavaScript
+    window.location.href = '/flags/marketing-pages?resetVisitorId=true';
   };
 
   return (
