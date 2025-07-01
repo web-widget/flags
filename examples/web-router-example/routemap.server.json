@@ -19,17 +19,13 @@
     {
       "pathname": "/flags/marketing-pages",
       "module": "./routes/flags/marketing-pages/index@route.tsx"
-    },
-    {
-      "pathname": "/flags/marketing-pages/:code",
-      "module": "./routes/flags/marketing-pages/[code]@route.tsx"
     }
   ],
   "actions": [],
   "middlewares": [
     {
       "pathname": "/flags/marketing-pages",
-      "module": "./routes/flags/marketing-pages@middleware.ts"
+      "module": "./routes/(middlewares)/flags/marketing-pages@middleware.ts"
     }
   ],
   "fallbacks": []

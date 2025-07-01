@@ -42,7 +42,7 @@ export default defineRouteComponent(function FlagsIndexPage() {
             <div className={styles.cardContent}>
               <div className={styles.cardTitle}>Dashboard Pages</div>
               <div className={styles.cardDescription}>
-                Using feature flags on dynamic pages
+                Using feature flags on user-controlled pages
               </div>
             </div>
           </a>
@@ -56,8 +56,8 @@ export default defineRouteComponent(function FlagsIndexPage() {
                 Marketing Pages (manual approach)
               </div>
               <div className={styles.cardDescription}>
-                Simple but not scalable approach to feature flags on static
-                pages
+                Simple but not scalable approach to feature flags on
+                content-driven pages
               </div>
             </div>
           </a>
@@ -66,7 +66,8 @@ export default defineRouteComponent(function FlagsIndexPage() {
             <div className={styles.cardContent}>
               <div className={styles.cardTitle}>Marketing Pages</div>
               <div className={styles.cardDescription}>
-                Using feature flags on static pages with precomputed routes
+                Using feature flags on content-driven pages with precomputed
+                routes
               </div>
             </div>
           </a>

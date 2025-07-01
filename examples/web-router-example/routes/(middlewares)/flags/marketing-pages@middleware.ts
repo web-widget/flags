@@ -1,8 +1,5 @@
 import { defineMiddlewareHandler } from '@web-widget/helpers';
-import {
-  computeInternalRoute,
-  createVisitorId,
-} from '#config/precomputed-flags';
+import { computeFlagsCode, createVisitorId } from '#config/precomputed-flags';
 
 export const handler = defineMiddlewareHandler(async (ctx, next) => {
   const { request } = ctx;
@@ -24,9 +21,21 @@ export const handler = defineMiddlewareHandler(async (ctx, next) => {
   // Always ensure visitor ID is available in headers for flag evaluation
   request.headers.set('x-visitorId', visitorId);
 
-  // Only redirect if we're on the exact /flags/marketing-pages path
-  if (url.pathname === '/flags/marketing-pages') {
-    // If reset was requested, redirect without the parameter to clean URL
+  // Handle marketing-pages routes
+  if (url.pathname.startsWith('/flags/marketing-pages')) {
+    // If this is a subpath (like /flags/marketing-pages/abc123), redirect to clean URL
+    // This handles old URLs that might still exist
+    if (url.pathname !== '/flags/marketing-pages') {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: '/flags/marketing-pages',
+          'Set-Cookie': `visitorId=${visitorId}; Path=/; HttpOnly`,
+        },
+      });
+    }
+
+    // If reset was requested, redirect to clean URL without parameter
     if (shouldReset) {
       return new Response(null, {
         status: 302,
@@ -37,25 +46,12 @@ export const handler = defineMiddlewareHandler(async (ctx, next) => {
       });
     }
 
-    // Compute the internal route
-    const internalRoute = await computeInternalRoute(
-      '/flags/marketing-pages',
-      request,
-    );
-
-    // Always redirect to the internal route
-    if (internalRoute !== '/flags/marketing-pages') {
-      return new Response(null, {
-        status: 302,
-        headers: {
-          Location: internalRoute,
-          'Set-Cookie': `visitorId=${visitorId}; Path=/; HttpOnly`,
-        },
-      });
-    }
+    // For the exact /flags/marketing-pages path, compute and set the flags code header
+    const flagsCode = await computeFlagsCode(request);
+    request.headers.set('x-flags-code', flagsCode);
   }
 
-  // Continue to the route handler (for both base path and internal routes)
+  // Continue to the route handler
   const response = await next();
 
   // Set the visitor ID cookie if it wasn't already set or if reset was requested

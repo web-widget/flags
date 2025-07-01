@@ -36,7 +36,8 @@ export default defineRouteComponent<DashboardData>(function DashboardPage({
       <div className={styles.container}>
         <h1 className={styles.title}>Dashboard Pages</h1>
         <p className={styles.description}>
-          This example demonstrates using feature flags on dynamic pages.
+          This example demonstrates using feature flags on user-controlled
+          pages.
         </p>
 
         {flagValue ? (

@@ -15,6 +15,9 @@ const poweredByMiddleware = defineMiddlewareHandler(
   },
 );
 
-const flagsMiddleware = createHandle({ flags });
+const flagsMiddleware = createHandle({
+  flags,
+  secret: process.env.FLAGS_SECRET,
+});
 
 export default composeMiddleware([poweredByMiddleware, flagsMiddleware]);

@@ -1,6 +1,6 @@
 import { mergeMeta } from '@web-widget/helpers';
 import WebRouter from '@web-widget/web-router';
-import middleware from './routes/middleware';
+import middleware from './routes/(middlewares)/global';
 const { meta, manifest } = import.meta.framework;
 
 manifest.middlewares.unshift({

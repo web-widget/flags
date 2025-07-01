@@ -36,8 +36,8 @@ export default defineRouteComponent<MarketingManualData>(
           <h1 className={styles.title}>Marketing Pages (Manual Approach)</h1>
           <p className={styles.description}>
             This example demonstrates a simple but not scalable approach to
-            feature flags on static pages. The flag value is checked manually in
-            each route.
+            feature flags on content-driven pages. The flag value is checked
+            manually in each route.
           </p>
 
           {flagValue ? (
