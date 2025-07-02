@@ -327,18 +327,34 @@ function createContext(
  *
  * Also registers evaluated flags, except for flags used only after `resolve` calls in other handlers.
  *
- * @example Usage example in src/hooks.server.ts
+ * @example Usage example in routes/(middlewares)/global.ts
  *
  * ```ts
- * import { createHandle } from 'flags/sveltekit';
- * import * as flags from '$lib/flags';
+ * import { createHandle } from 'flags/web-router';
+ * import * as flags from '#config/flags';
  *
- * export const handle = createHandle({ flags });
+ * export default createHandle({
+ *   flags,
+ *   secret: process.env.FLAGS_SECRET,
+ * });
  * ```
  *
- * @example Usage example in src/hooks.server.ts with other handlers
+ * @example Usage example with other middleware handlers
  *
- * Note that when composing `createHandle` with `sequence` then `createHandle` should come first. Only handlers after it will be able to access feature flags.
+ * ```ts
+ * import { composeMiddleware } from '@web-widget/helpers';
+ * import { createHandle } from 'flags/web-router';
+ * import * as flags from '#config/flags';
+ *
+ * const flagsMiddleware = createHandle({
+ *   flags,
+ *   secret: process.env.FLAGS_SECRET,
+ * });
+ *
+ * export default composeMiddleware([otherMiddleware, flagsMiddleware]);
+ * ```
+ *
+ * Note that when composing `createHandle` with other middleware, `createHandle` should come after other middleware that don't require access to flags. Only handlers after it will be able to access feature flags.
  */
 export function createHandle({
   secret,
@@ -499,7 +515,7 @@ export function createFlagsDiscoveryEndpoint(
       context.request.headers.get('authorization'),
       options?.secret,
     );
-    if (!access) Response.json(null, { status: 401 });
+    if (!access) return Response.json(null, { status: 401 });
 
     const apiData = await getApiData(context);
     return Response.json(apiData, {
