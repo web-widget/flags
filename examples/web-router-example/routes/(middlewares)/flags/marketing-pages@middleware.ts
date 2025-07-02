@@ -49,7 +49,7 @@ export const handler = defineMiddlewareHandler(async (ctx, next) => {
   const response = await next();
 
   // Set the Vary header to enable intelligent caching based on flags code
-  // This tells caches (CDN, browser) to store separate versions for different flag combinations
+  // This tells caches to store separate versions for different flag combinations
   // Users with the same flagsCode will get cached responses, improving performance
   response.headers.append('vary', FLAGS_CODE_HEADER);
 

@@ -1,4 +1,4 @@
-let default_secret: string | undefined = process.env.FLAGS_SECRET;
+let default_secret: string | undefined = process?.env?.FLAGS_SECRET;
 
 export async function tryGetSecret(secret?: string): Promise<string> {
   secret = secret || default_secret;

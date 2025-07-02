@@ -2,7 +2,8 @@ import { defineConfig } from 'tsup';
 
 const defaultConfig = {
   format: ['esm', 'cjs'],
-  splitting: true,
+  // NOTE: Splitting has been disabled as it would cause the web-router entry point to include the node module
+  splitting: false,
   sourcemap: true,
   minify: false,
   clean: true,
