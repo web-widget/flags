@@ -63,7 +63,10 @@ function sealHeaders(headers: Headers): ReadonlyHeaders {
   const cached = headersMap.get(headers);
   if (cached !== undefined) return cached;
 
-  const sealed = HeadersAdapter.seal(headers);
+  const sealed = HeadersAdapter.seal(
+    headers,
+    'Headers cannot be modified in web-router. Headers are read-only during request processing.',
+  );
   headersMap.set(headers, sealed);
   return sealed;
 }
@@ -72,7 +75,10 @@ function sealCookies(headers: Headers): ReadonlyRequestCookies {
   const cached = cookiesMap.get(headers);
   if (cached !== undefined) return cached;
 
-  const sealed = RequestCookiesAdapter.seal(new RequestCookies(headers));
+  const sealed = RequestCookiesAdapter.seal(
+    new RequestCookies(headers),
+    'Cookies cannot be modified in web-router. Use Response.headers to set cookies in the response.',
+  );
   cookiesMap.set(headers, sealed);
   return sealed;
 }

@@ -60,7 +60,10 @@ function sealHeaders(headers: Headers): ReadonlyHeaders {
   const cached = headersMap.get(headers);
   if (cached !== undefined) return cached;
 
-  const sealed = HeadersAdapter.seal(headers);
+  const sealed = HeadersAdapter.seal(
+    headers,
+    'Headers cannot be modified in SvelteKit. Headers are read-only during request processing.',
+  );
   headersMap.set(headers, sealed);
   return sealed;
 }
@@ -69,7 +72,10 @@ function sealCookies(headers: Headers): ReadonlyRequestCookies {
   const cached = cookiesMap.get(headers);
   if (cached !== undefined) return cached;
 
-  const sealed = RequestCookiesAdapter.seal(new RequestCookies(headers));
+  const sealed = RequestCookiesAdapter.seal(
+    new RequestCookies(headers),
+    'Cookies cannot be modified in SvelteKit. Use the cookies API from @sveltejs/kit to set cookies. Read more: https://kit.svelte.dev/docs/load#cookies',
+  );
   cookiesMap.set(headers, sealed);
   return sealed;
 }
