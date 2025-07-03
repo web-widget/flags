@@ -29,7 +29,7 @@ import {
 import {
   type ReadonlyRequestCookies,
   RequestCookiesAdapter,
-} from './request-cookies';
+} from '../spec-extension/adapters/request-cookies';
 import { normalizeOptions } from '../lib/normalize-options';
 import { RequestCookies } from '@edge-runtime/cookies';
 import { Flag, FlagsArray } from './types';

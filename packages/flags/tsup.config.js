@@ -2,8 +2,7 @@ import { defineConfig } from 'tsup';
 
 const defaultConfig = {
   format: ['esm', 'cjs'],
-  // NOTE: Splitting has been disabled as it would cause the web-router entry point to include the node module
-  splitting: false,
+  splitting: true,
   sourcemap: true,
   minify: false,
   clean: true,
@@ -13,14 +12,22 @@ const defaultConfig = {
 };
 
 // eslint-disable-next-line import/no-default-export -- [@vercel/style-guide@5 migration]
-export default defineConfig({
-  entry: {
-    index: 'src/index.ts',
-    next: 'src/next/index.ts',
-    sveltekit: 'src/sveltekit/index.ts',
-    react: 'src/react/index.tsx',
-    analytics: 'src/analytics.ts',
-    'web-router': 'src/web-router/index.ts',
+export default defineConfig([
+  {
+    entry: {
+      index: 'src/index.ts',
+      next: 'src/next/index.ts',
+      sveltekit: 'src/sveltekit/index.ts',
+      react: 'src/react/index.tsx',
+      analytics: 'src/analytics.ts',
+    },
+    ...defaultConfig,
   },
-  ...defaultConfig,
-});
+  {
+    entry: {
+      'web-router': 'src/web-router/index.ts',
+    },
+    ...defaultConfig,
+    splitting: false, // Disable splitting for web-router to avoid async_hooks being included
+  },
+]);
