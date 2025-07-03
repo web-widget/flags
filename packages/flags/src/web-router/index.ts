@@ -14,6 +14,7 @@ import {
   decryptFlagDefinitions as _decryptFlagDefinitions,
   version,
 } from '..';
+import { createFlagScriptInjectionTransform } from './html-transform';
 import {
   Decide,
   FlagDeclaration,
@@ -28,7 +29,7 @@ import {
 import {
   type ReadonlyRequestCookies,
   RequestCookiesAdapter,
-} from '../spec-extension/adapters/request-cookies';
+} from './request-cookies';
 import { normalizeOptions } from '../lib/normalize-options';
 import { RequestCookies } from '@edge-runtime/cookies';
 import { Flag, FlagsArray } from './types';
@@ -126,56 +127,6 @@ function getIdentify<ValueType, EntitiesType>(
  * This could be the case when the flag is called from edge middleware.
  */
 const requestMap = new WeakMap<Request, FlagContext>();
-
-/**
- * Creates a transform stream that conditionally injects flag values script before </body> tag in HTML content
- */
-function createFlagScriptInjectionTransform(
-  scriptContent: () => Promise<string>,
-): TransformStream {
-  let buffer = '';
-
-  return new TransformStream({
-    async transform(chunk, controller) {
-      const text = new TextDecoder().decode(chunk);
-      buffer += text;
-
-      // Check if we have a complete </body> tag
-      const bodyEndIndex = buffer.indexOf('</body>');
-      if (bodyEndIndex !== -1) {
-        const beforeBody = buffer.substring(0, bodyEndIndex);
-        const afterBody = buffer.substring(bodyEndIndex + 7); // 7 is length of '</body>'
-
-        // Check if we should inject the script when </body> is found
-        let modifiedContent: string;
-        const content = await scriptContent();
-        if (content) {
-          // Inject the script and reconstruct
-          const scriptTag = `<script type="application/json" data-flag-values>${content}</script></body>`;
-          modifiedContent = beforeBody + scriptTag + afterBody;
-        } else {
-          // Keep original content without injection
-          modifiedContent = buffer;
-        }
-
-        controller.enqueue(new TextEncoder().encode(modifiedContent));
-        buffer = '';
-      } else {
-        // If buffer gets too large without finding </body>, flush it
-        if (buffer.length > 8192) {
-          controller.enqueue(new TextEncoder().encode(buffer));
-          buffer = '';
-        }
-      }
-    },
-    flush(controller) {
-      // Flush any remaining content
-      if (buffer.length > 0) {
-        controller.enqueue(new TextEncoder().encode(buffer));
-      }
-    },
-  });
-}
 
 /**
  * Declares a feature flag
@@ -385,7 +336,7 @@ export function createHandle({
 
     // Modify the HTML response stream to inject flag values script after </body>
     if (result && result instanceof Response && result.body) {
-      const contentType = result.headers.get('content-type');
+      const contentType = result.headers.get('content-type')?.toLowerCase();
       if (contentType && contentType.includes('text/html')) {
         const transformStream = createFlagScriptInjectionTransform(async () => {
           const store = context().state._flag;
