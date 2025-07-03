@@ -126,7 +126,10 @@ function sealHeaders(headers: Headers): ReadonlyHeaders {
   const cached = headersMap.get(headers);
   if (cached !== undefined) return cached;
 
-  const sealed = HeadersAdapter.seal(headers);
+  const sealed = HeadersAdapter.seal(
+    headers,
+    'Headers cannot be modified. Read more: https://nextjs.org/docs/app/api-reference/functions/headers',
+  );
   headersMap.set(headers, sealed);
   return sealed;
 }
@@ -135,7 +138,10 @@ function sealCookies(headers: Headers): ReadonlyRequestCookies {
   const cached = cookiesMap.get(headers);
   if (cached !== undefined) return cached;
 
-  const sealed = RequestCookiesAdapter.seal(new RequestCookies(headers));
+  const sealed = RequestCookiesAdapter.seal(
+    new RequestCookies(headers),
+    'Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options',
+  );
   cookiesMap.set(headers, sealed);
   return sealed;
 }
