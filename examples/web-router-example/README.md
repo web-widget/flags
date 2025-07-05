@@ -225,7 +225,13 @@ export const handler = defineMiddlewareHandler(async (ctx, next) => {
 export const handler = defineRouteHandler({
   async GET({ request, render }) {
     // Get precomputed flags code from middleware
-    const flagsCode = request.headers.get('x-flags-code') || 'unknown';
+    const flagsCode = request.headers.get('x-flags-code');
+
+    if (!flagsCode) {
+      throw new Error(
+        'x-flags-code header is required. Please check the middleware configuration.',
+      );
+    }
 
     // Evaluate flags with precomputed code and configuration
     const flag1 = await firstMarketingABTest(flagsCode, marketingFlags);

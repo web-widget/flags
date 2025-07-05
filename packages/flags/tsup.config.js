@@ -12,22 +12,14 @@ const defaultConfig = {
 };
 
 // eslint-disable-next-line import/no-default-export -- [@vercel/style-guide@5 migration]
-export default defineConfig([
-  {
-    entry: {
-      index: 'src/index.ts',
-      next: 'src/next/index.ts',
-      sveltekit: 'src/sveltekit/index.ts',
-      react: 'src/react/index.tsx',
-      analytics: 'src/analytics.ts',
-    },
-    ...defaultConfig,
+export default defineConfig({
+  entry: {
+    index: 'src/index.ts',
+    next: 'src/next/index.ts',
+    sveltekit: 'src/sveltekit/index.ts',
+    react: 'src/react/index.tsx',
+    analytics: 'src/analytics.ts',
+    'web-router': 'src/web-router/index.ts',
   },
-  {
-    entry: {
-      'web-router': 'src/web-router/index.ts',
-    },
-    ...defaultConfig,
-    splitting: false, // Disable splitting for web-router to avoid async_hooks being included
-  },
-]);
+  ...defaultConfig,
+});

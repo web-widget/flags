@@ -23,7 +23,13 @@ export const handler = defineRouteHandler<MarketingData>({
   async GET({ request, render }) {
     // Get the precomputed flags code from the custom header set by middleware
     // This header is set by the middleware using the flags/web-router precompute function
-    const flagsCode = request.headers.get('x-flags-code') || 'unknown';
+    const flagsCode = request.headers.get('x-flags-code');
+
+    if (!flagsCode) {
+      throw new Error(
+        'x-flags-code header is required. Please check the middleware configuration.',
+      );
+    }
 
     // Evaluate flags using the precomputed flags code and the flags configuration
     // The precompute function has already calculated this combination, so we pass it as a parameter

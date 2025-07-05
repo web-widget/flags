@@ -4,6 +4,7 @@ import {
   type ApiData,
   reportValue,
   safeJsonStringify,
+  verifyAccess,
   type JsonValue,
   type FlagDefinitionsType,
   encryptFlagValues as _encryptFlagValues,
@@ -39,7 +40,6 @@ import {
   precompute as _precompute,
 } from './precompute';
 import { tryGetSecret } from './env';
-import { verifyAccess } from './verify-access';
 
 export type { Flag } from './types';
 
