@@ -1,11 +1,13 @@
+import { RequestCookies } from '@edge-runtime/cookies';
 import { MiddlewareContext, MiddlewareHandler } from '@web-widget/schema';
 import { context } from '@web-widget/helpers/context';
 import {
   type ApiData,
+  type FlagDefinitionType,
+  type ProviderData,
   reportValue,
   safeJsonStringify,
   verifyAccess,
-  type JsonValue,
   type FlagDefinitionsType,
   encryptFlagValues as _encryptFlagValues,
   decryptFlagValues as _decryptFlagValues,
@@ -15,14 +17,19 @@ import {
   decryptFlagDefinitions as _decryptFlagDefinitions,
   version,
 } from '..';
-import { createFlagScriptInjectionTransform } from './html-transform';
-import {
+import type {
   Decide,
   FlagDeclaration,
   FlagOverridesType,
   FlagValuesType,
   Identify,
+  JsonValue,
+  Origin,
 } from '../types';
+import type { Flag, FlagsArray } from './types';
+import { getOverrides } from './overrides';
+import { normalizeOptions } from '../lib/normalize-options';
+import { getPrecomputed, combine, deserialize, evaluate } from './precompute';
 import {
   type ReadonlyHeaders,
   HeadersAdapter,
@@ -31,22 +38,30 @@ import {
   type ReadonlyRequestCookies,
   RequestCookiesAdapter,
 } from '../spec-extension/adapters/request-cookies';
-import { normalizeOptions } from '../lib/normalize-options';
-import { RequestCookies } from '@edge-runtime/cookies';
-import { Flag, FlagsArray } from './types';
-import {
-  generatePermutations as _generatePermutations,
-  getPrecomputed,
-  precompute as _precompute,
-} from './precompute';
+import { setSpanAttribute, trace } from '../lib/tracing';
+import { internalReportValue } from '../lib/report-value';
+import { createFlagScriptInjectionTransform } from './html-transform';
 import { tryGetSecret } from './env';
 import { serialize } from '../lib/serialization';
+import { safeExecute } from './error-handling';
 
 export type { Flag } from './types';
 
+export {
+  getPrecomputed,
+  combine,
+  serialize,
+  deserialize,
+  evaluate,
+  precompute,
+  generatePermutations,
+} from './precompute';
+
+export { dedupe, clearDedupeCacheForCurrentRequest } from './dedupe';
+
 declare module '@web-widget/schema' {
   interface State {
-    _flag: FlagContext;
+    _flag: FlagContext | null;
   }
 }
 
@@ -57,8 +72,53 @@ function hasOwnProperty<X extends {}, Y extends PropertyKey>(
   return obj.hasOwnProperty(prop);
 }
 
+// a map of (headers, flagKey, entitiesKey) => value
+const evaluationCache = new WeakMap<
+  Headers,
+  Map</* flagKey */ string, Map</* entitiesKey */ string, any>>
+>();
+
+type IdentifyArgs = Parameters<
+  Exclude<FlagDeclaration<any, any>['identify'], undefined>
+>;
+const identifyArgsMap = new WeakMap<Headers, IdentifyArgs>();
 const headersMap = new WeakMap<Headers, ReadonlyHeaders>();
 const cookiesMap = new WeakMap<Headers, ReadonlyRequestCookies>();
+
+function getCachedValuePromise(
+  headers: Headers,
+  flagKey: string,
+  entitiesKey: string,
+): any {
+  const map = evaluationCache.get(headers)?.get(flagKey);
+  if (!map) return undefined;
+  return map.get(entitiesKey);
+}
+
+function setCachedValuePromise(
+  headers: Headers,
+  flagKey: string,
+  entitiesKey: string,
+  flagValue: any,
+): any {
+  const byHeaders = evaluationCache.get(headers);
+
+  if (!byHeaders) {
+    evaluationCache.set(
+      headers,
+      new Map([[flagKey, new Map([[entitiesKey, flagValue]])]]),
+    );
+    return;
+  }
+
+  const byFlagKey = byHeaders.get(flagKey);
+  if (!byFlagKey) {
+    byHeaders.set(flagKey, new Map([[entitiesKey, flagValue]]));
+    return;
+  }
+
+  byFlagKey.set(entitiesKey, flagValue);
+}
 
 function sealHeaders(headers: Headers): ReadonlyHeaders {
   const cached = headersMap.get(headers);
@@ -82,6 +142,40 @@ function sealCookies(headers: Headers): ReadonlyRequestCookies {
   );
   cookiesMap.set(headers, sealed);
   return sealed;
+}
+
+function isIdentifyFunction<ValueType, EntitiesType>(
+  identify: FlagDeclaration<ValueType, EntitiesType>['identify'] | EntitiesType,
+): identify is FlagDeclaration<ValueType, EntitiesType>['identify'] {
+  return typeof identify === 'function';
+}
+
+async function getEntities<ValueType, EntitiesType>(
+  identify: FlagDeclaration<ValueType, EntitiesType>['identify'] | EntitiesType,
+  dedupeCacheKey: Headers,
+  readonlyHeaders: ReadonlyHeaders,
+  readonlyCookies: ReadonlyRequestCookies,
+): Promise<EntitiesType | undefined> {
+  if (!identify) return undefined;
+  if (!isIdentifyFunction(identify)) return identify;
+
+  const args = identifyArgsMap.get(dedupeCacheKey);
+  if (args)
+    return identify(
+      ...(args as [
+        { headers: ReadonlyHeaders; cookies: ReadonlyRequestCookies },
+      ]),
+    );
+
+  const nextArgs: IdentifyArgs = [
+    { headers: readonlyHeaders, cookies: readonlyCookies },
+  ];
+  identifyArgsMap.set(dedupeCacheKey, nextArgs);
+  return identify(
+    ...(nextArgs as [
+      { headers: ReadonlyHeaders; cookies: ReadonlyRequestCookies },
+    ]),
+  );
 }
 
 type PromisesMap<T> = {
@@ -120,13 +214,25 @@ function getDecide<ValueType, EntitiesType>(
 
 function getIdentify<ValueType, EntitiesType>(
   definition: FlagDeclaration<ValueType, EntitiesType>,
-): Identify<EntitiesType> | undefined {
-  if (typeof definition.identify === 'function') {
+): Identify<EntitiesType> {
+  return function identify(params) {
+    if (typeof definition.identify === 'function') {
+      return definition.identify(params);
+    }
+    if (typeof definition.adapter?.identify === 'function') {
+      return definition.adapter.identify(params);
+    }
     return definition.identify;
-  }
-  if (typeof definition.adapter?.identify === 'function') {
-    return definition.adapter.identify;
-  }
+  };
+}
+
+function getOrigin<ValueType, EntitiesType>(
+  definition: FlagDeclaration<ValueType, EntitiesType>,
+): string | Origin | undefined {
+  if (definition.origin) return definition.origin;
+  if (typeof definition.adapter?.origin === 'function')
+    return definition.adapter.origin(definition.key);
+  return definition.adapter?.origin;
 }
 
 /**
@@ -135,31 +241,25 @@ function getIdentify<ValueType, EntitiesType>(
  */
 const requestMap = new WeakMap<Request, FlagContext>();
 
-/**
- * Declares a feature flag
- */
-export function flag<
-  ValueType extends JsonValue = boolean | string | number,
-  EntitiesType = any,
->(definition: FlagDeclaration<ValueType, EntitiesType>): Flag<ValueType> {
-  const decide = getDecide<ValueType, EntitiesType>(definition);
-  const identify = getIdentify(definition);
+type Run<ValueType, EntitiesType> = (options: {
+  identify: FlagDeclaration<ValueType, EntitiesType>['identify'] | EntitiesType;
+  request?: Request;
+}) => Promise<ValueType>;
 
-  const flagImpl = async function flagImpl(
-    requestOrCode?: string | Request,
-    flagsArrayOrSecret?: string | Flag<any>[],
-  ): Promise<ValueType> {
+function getRun<ValueType, EntitiesType>(
+  definition: FlagDeclaration<ValueType, EntitiesType>,
+  decide: Decide<ValueType, EntitiesType>,
+): Run<ValueType, EntitiesType> {
+  return async function run(options): Promise<ValueType> {
     let store = context().state._flag;
 
+    // If no store, create one from the provided request
     if (!store) {
-      if (requestOrCode instanceof Request) {
-        const cached = requestMap.get(requestOrCode);
+      if (options.request) {
+        const cached = requestMap.get(options.request);
         if (!cached) {
-          store = createContext(
-            requestOrCode,
-            (flagsArrayOrSecret as string) ?? (await tryGetSecret()),
-          );
-          requestMap.set(requestOrCode, store);
+          store = createContext(options.request, await tryGetSecret());
+          requestMap.set(options.request, store);
         } else {
           store = cached;
         }
@@ -168,91 +268,322 @@ export function flag<
       }
     }
 
-    if (
-      typeof requestOrCode === 'string' &&
-      Array.isArray(flagsArrayOrSecret)
-    ) {
-      return getPrecomputed(
-        definition.key,
-        flagsArrayOrSecret,
-        requestOrCode,
-        store.secret,
-      );
-    }
-
-    if (hasOwnProperty(store.usedFlags, definition.key)) {
-      const valuePromise = store.usedFlags[definition.key];
-      if (typeof valuePromise !== 'undefined') {
-        return valuePromise as Promise<ValueType>;
-      }
-    }
-
     const headers = sealHeaders(store.request.headers);
     const cookies = sealCookies(store.request.headers);
 
+    // Use improved overrides function with memoization
     const overridesCookie = cookies.get('vercel-flag-overrides')?.value;
-    const overrides = overridesCookie
-      ? await _decryptOverrides(overridesCookie, store.secret)
-      : undefined;
+    const overrides = await getOverrides(overridesCookie);
+
+    let entities: EntitiesType | undefined;
+
+    // Use provided identify
+    if (options.identify) {
+      if (typeof options.identify === 'function') {
+        entities = await (options.identify as Identify<EntitiesType>)({
+          headers,
+          cookies,
+        });
+      } else {
+        entities = options.identify as EntitiesType;
+      }
+    }
+
+    // Create entities key for caching
+    const entitiesKey = JSON.stringify(entities) ?? '';
+
+    // Check sophisticated cache first
+    const cachedValue = getCachedValuePromise(
+      store.request.headers,
+      definition.key,
+      entitiesKey,
+    );
+    if (cachedValue !== undefined) {
+      return await cachedValue;
+    }
 
     if (overrides && hasOwnProperty(overrides, definition.key)) {
       const value = overrides[definition.key];
       if (typeof value !== 'undefined') {
-        reportValue(definition.key, value);
-        store.usedFlags[definition.key] = Promise.resolve(value as JsonValue);
+        setSpanAttribute('method', 'override');
+        const resolvedPromise = Promise.resolve(value as JsonValue);
+
+        // Update cache
+        setCachedValuePromise(
+          store.request.headers,
+          definition.key,
+          entitiesKey,
+          resolvedPromise,
+        );
+
+        internalReportValue(definition.key, value, {
+          reason: 'override',
+        });
         return value;
       }
     }
 
-    let entities: EntitiesType | undefined;
-    if (identify) {
-      // Deduplicate calls to identify, key being the function itself
-      if (!store.identifiers.has(identify)) {
-        const entities = identify({
+    // Execute decide function with improved error handling
+    const valuePromise = safeExecute(
+      () =>
+        decide({
           headers,
           cookies,
-        });
-        store.identifiers.set(identify, entities);
-      }
-
-      entities = (await store.identifiers.get(identify)) as EntitiesType;
-    }
-
-    const valuePromise = decide({
-      headers,
-      cookies,
-      entities,
+          entities,
+        }),
+      definition.defaultValue,
+      (error) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.info(
+            `flags: Flag "${definition.key}" is falling back to its defaultValue`,
+          );
+        } else {
+          console.warn(
+            `flags: Flag "${definition.key}" is falling back to its defaultValue after catching the following error`,
+            error,
+          );
+        }
+      },
+    ).then<ValueType, ValueType>((value) => {
+      if (value !== undefined) return value;
+      if (definition.defaultValue !== undefined) return definition.defaultValue;
+      throw new Error(
+        `flags: Flag "${definition.key}" must have a defaultValue or a decide function that returns a value`,
+      );
     });
-    store.usedFlags[definition.key] = valuePromise as Promise<JsonValue>;
+
+    // Update cache
+    setCachedValuePromise(
+      store.request.headers,
+      definition.key,
+      entitiesKey,
+      valuePromise as Promise<JsonValue>,
+    );
 
     const value = await valuePromise;
-    reportValue(definition.key, value);
+    if (definition.config?.reportValue !== false) {
+      reportValue(definition.key, value);
+    }
     return value;
   };
+}
 
+/**
+ * Declares a feature flag
+ */
+export function flag<
+  ValueType extends JsonValue = boolean | string | number,
+  EntitiesType = any,
+>(
+  definition: FlagDeclaration<ValueType, EntitiesType>,
+): Flag<ValueType, EntitiesType> {
+  const decide = getDecide<ValueType, EntitiesType>(definition);
+  const identify = getIdentify(definition);
+  const run = getRun<ValueType, EntitiesType>(definition, decide);
+  const origin = getOrigin(definition);
+
+  const flagImpl = trace(
+    async function flagImpl(...args: any[]): Promise<ValueType> {
+      // Default method, may be overwritten by other branches
+      setSpanAttribute('method', 'decided');
+
+      // Handle precomputed flags first (similar to Next.js)
+      if (typeof args[0] === 'string' && Array.isArray(args[1])) {
+        setSpanAttribute('method', 'precomputed');
+        const [precomputedCode, precomputedGroup, secret] = args;
+        // If no secret provided, try to get from context
+        const effectiveSecret =
+          secret ?? context().state._flag?.secret ?? (await tryGetSecret());
+        // Create a temporary flag object with the key
+        const tempFlag = { key: definition.key } as Flag<ValueType>;
+        return getPrecomputed(
+          tempFlag,
+          precomputedGroup,
+          precomputedCode,
+          effectiveSecret,
+        );
+      }
+
+      let store = context().state._flag;
+
+      if (!store) {
+        if (args[0] instanceof Request) {
+          const cached = requestMap.get(args[0]);
+          if (!cached) {
+            store = createContext(
+              args[0],
+              (args[1] as string) ?? (await tryGetSecret()),
+            );
+            requestMap.set(args[0], store);
+          } else {
+            store = cached;
+          }
+        } else {
+          throw new Error('flags: Neither context found nor Request provided');
+        }
+      }
+
+      const headers = sealHeaders(store.request.headers);
+      const cookies = sealCookies(store.request.headers);
+
+      const overridesCookie = cookies.get('vercel-flag-overrides')?.value;
+      const overrides = await getOverrides(overridesCookie);
+
+      let entities: EntitiesType | undefined;
+      if (identify) {
+        // Deduplicate calls to identify, key being the function itself
+        if (!store.identifiers.has(identify)) {
+          const entities = identify({
+            headers,
+            cookies,
+          });
+          store.identifiers.set(identify, entities);
+        }
+
+        entities = (await store.identifiers.get(identify)) as EntitiesType;
+      }
+
+      // Create entities key for caching like Next.js
+      const entitiesKey = JSON.stringify(entities) ?? '';
+
+      // Check sophisticated cache first
+      const cachedValue = getCachedValuePromise(
+        store.request.headers,
+        definition.key,
+        entitiesKey,
+      );
+      if (cachedValue !== undefined) {
+        setSpanAttribute('method', 'cached');
+        const value = await cachedValue;
+        return value;
+      }
+
+      if (overrides && hasOwnProperty(overrides, definition.key)) {
+        const value = overrides[definition.key];
+        if (typeof value !== 'undefined') {
+          setSpanAttribute('method', 'override');
+          const resolvedPromise = Promise.resolve(value as JsonValue);
+          store.usedFlags[definition.key] = resolvedPromise;
+
+          // Also update the sophisticated cache
+          setCachedValuePromise(
+            store.request.headers,
+            definition.key,
+            entitiesKey,
+            resolvedPromise,
+          );
+
+          internalReportValue(definition.key, value, {
+            reason: 'override',
+          });
+          return value;
+        }
+      }
+
+      // Use improved error handling
+      const valuePromise = safeExecute(
+        () =>
+          decide({
+            headers,
+            cookies,
+            entities,
+          }),
+        definition.defaultValue,
+        (error) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.info(
+              `flags: Flag "${definition.key}" is falling back to its defaultValue`,
+            );
+          } else {
+            console.warn(
+              `flags: Flag "${definition.key}" is falling back to its defaultValue after catching the following error`,
+              error,
+            );
+          }
+        },
+      ).then<ValueType, ValueType>((value) => {
+        if (value !== undefined) return value;
+        if (definition.defaultValue !== undefined)
+          return definition.defaultValue;
+        throw new Error(
+          `flags: Flag "${definition.key}" must have a defaultValue or a decide function that returns a value`,
+        );
+      });
+
+      store.usedFlags[definition.key] = valuePromise as Promise<JsonValue>;
+
+      // Also update the sophisticated cache
+      setCachedValuePromise(
+        store.request.headers,
+        definition.key,
+        entitiesKey,
+        valuePromise as Promise<JsonValue>,
+      );
+
+      const value = await valuePromise;
+      if (definition.config?.reportValue !== false) {
+        reportValue(definition.key, value);
+      }
+      return value;
+    },
+    {
+      name: 'flag',
+      isVerboseTrace: false,
+      attributes: { key: definition.key },
+    },
+  ) as any as Flag<ValueType, EntitiesType>;
+
+  // Add all the properties to make it compatible with Flag<ValueType>
   flagImpl.key = definition.key;
   flagImpl.defaultValue = definition.defaultValue;
-  flagImpl.origin = definition.origin;
+  flagImpl.origin = origin;
   flagImpl.description = definition.description;
   flagImpl.options = normalizeOptions(definition.options);
-  flagImpl.decide = decide;
-  flagImpl.identify = identify;
+  flagImpl.decide = trace(decide, {
+    isVerboseTrace: false,
+    name: 'decide',
+    attributes: { key: definition.key },
+  });
+  flagImpl.identify = identify
+    ? trace(identify, {
+        isVerboseTrace: false,
+        name: 'identify',
+        attributes: { key: definition.key },
+      })
+    : identify;
+  flagImpl.run = trace(run, {
+    isVerboseTrace: false,
+    name: 'run',
+    attributes: { key: definition.key },
+  });
 
   return flagImpl;
 }
 
-export function getProviderData(flags: Record<string, Flag<any>>): ApiData {
-  const definitions = Object.values(flags).reduce<FlagDefinitionsType>(
-    (acc, d) => {
+export type KeyedFlagDefinitionType = { key: string } & FlagDefinitionType;
+
+export function getProviderData(
+  flags: Record<
+    string,
+    // accept an unknown array
+    KeyedFlagDefinitionType | readonly unknown[]
+  >,
+): ProviderData {
+  const definitions = Object.values(flags)
+    // filter out precomputed arrays
+    .filter((i): i is KeyedFlagDefinitionType => !Array.isArray(i))
+    .reduce<FlagDefinitionsType>((acc, d) => {
+      // maps the existing type from the facet definitions to the type
+      // the toolbar expects
       acc[d.key] = {
-        options: normalizeOptions(d.options),
+        options: d.options,
         origin: d.origin,
         description: d.description,
-      };
+        defaultValue: d.defaultValue,
+        declaredInCode: true,
+      } satisfies FlagDefinitionType;
       return acc;
-    },
-    {},
-  );
+    }, {});
 
   return { definitions, hints: [] };
 }
@@ -260,7 +591,6 @@ export function getProviderData(flags: Record<string, Flag<any>>): ApiData {
 interface FlagContext {
   request: Request;
   secret: string;
-  params: Record<string, string>;
   usedFlags: Record<string, Promise<JsonValue>>;
   identifiers: Map<Identify<unknown>, ReturnType<Identify<unknown>>>;
 }
@@ -273,7 +603,6 @@ function createContext(
   return {
     request,
     secret,
-    params: params ?? {},
     usedFlags: {},
     identifiers: new Map(),
   };
@@ -433,37 +762,6 @@ export async function decryptFlagDefinitions(
   secret?: string,
 ) {
   return _decryptFlagDefinitions(encryptedData, await tryGetSecret(secret));
-}
-
-/**
- * Evaluate a list of feature flags and generate a signed string representing their values.
- *
- * This convenience function call combines `evaluate` and `serialize`.
- *
- * @param flags - list of flags
- * @returns - a string representing evaluated flags
- */
-export async function precompute<T extends FlagsArray>(
-  flags: T,
-  request: Request,
-  secret?: string,
-): Promise<string> {
-  return _precompute(flags, request, await tryGetSecret(secret));
-}
-
-/**
- * Generates all permutations given a list of feature flags based on the options declared on each flag.
- * @param flags - The list of feature flags
- * @param filter - An optional filter function which gets called with each permutation.
- * @param secret - The secret sign the generated permutation with
- * @returns An array of strings representing each permutation
- */
-export async function generatePermutations(
-  flags: FlagsArray,
-  filter: ((permutation: Record<string, JsonValue>) => boolean) | null = null,
-  secret?: string,
-): Promise<string[]> {
-  return _generatePermutations(flags, filter, await tryGetSecret(secret));
 }
 
 /**
