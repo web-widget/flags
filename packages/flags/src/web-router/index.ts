@@ -61,7 +61,7 @@ export { dedupe, clearDedupeCacheForCurrentRequest } from './dedupe';
 
 declare module '@web-widget/schema' {
   interface State {
-    _flag: FlagContext | null;
+    _flag?: FlagContext;
   }
 }
 

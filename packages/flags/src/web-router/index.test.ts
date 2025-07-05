@@ -239,12 +239,10 @@ describe('flag', () => {
     const decide = vi.fn(() => true);
     const f = flag({ key: 'first-flag', decide });
 
-    // Mock context to return null
+    // Mock context to return undefined
     mocks.context.mockReturnValueOnce({
-      state: {
-        _flag: null,
-      },
-    });
+      state: {},
+    } as any);
 
     const request = createRequest();
     await expect(f(request)).resolves.toEqual(true);
@@ -273,10 +271,8 @@ describe('flag', () => {
     });
 
     mocks.context.mockReturnValueOnce({
-      state: {
-        _flag: null,
-      },
-    });
+      state: {},
+    } as any);
 
     await expect(f()).rejects.toThrow(
       'flags: Neither context found nor Request provided',
