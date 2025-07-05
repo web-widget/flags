@@ -42,7 +42,7 @@ export const handler = defineMiddlewareHandler(async (ctx, next) => {
   // Use the flags/web-router precompute function to calculate the flags code
   // This efficiently computes a hash representing the current flag combination
   // for this specific visitor, enabling caching and performance optimization
-  const flagsCode = await precompute(marketingFlags, request);
+  const flagsCode = await precompute(marketingFlags);
   request.headers.set(FLAGS_CODE_HEADER, flagsCode);
 
   // Continue to the route handler

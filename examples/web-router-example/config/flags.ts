@@ -23,7 +23,7 @@ export const marketingABTestManualApproach = flag<boolean>({
   },
 });
 
-interface Entities {
+export interface Entities {
   visitorId?: string;
 }
 
