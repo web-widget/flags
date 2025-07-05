@@ -40,6 +40,7 @@ import {
   precompute as _precompute,
 } from './precompute';
 import { tryGetSecret } from './env';
+import { serialize } from '../lib/serialization';
 
 export type { Flag } from './types';
 
@@ -351,12 +352,22 @@ export function createHandle({
           // This is for reporting which flags were used when this page was generated,
           // so the value shows up in Vercel Toolbar, without the client ever being
           // aware of this feature flag.
-          const encryptedFlagValues = await _encryptFlagValues(
-            await resolveObjectPromises(store.usedFlags),
-            secret,
+          const flagValues = await resolveObjectPromises(store.usedFlags);
+
+          // Create a serialized representation of the flag values using the same
+          // signing mechanism as Next.js, rather than encryption. This ensures
+          // deterministic output across server restarts.
+          const flagsArray = Object.keys(flagValues).map((key) => ({
+            key,
+            options: undefined,
+          }));
+          const serializedFlagValues = await serialize(
+            flagValues,
+            flagsArray,
+            secret!, // secret is guaranteed to be defined at this point
           );
 
-          return safeJsonStringify(encryptedFlagValues);
+          return safeJsonStringify(serializedFlagValues);
         });
         const modifiedBody = result.body.pipeThrough(transformStream);
 
