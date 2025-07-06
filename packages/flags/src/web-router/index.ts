@@ -26,10 +26,10 @@ import type {
   JsonValue,
   Origin,
 } from '../types';
-import type { Flag, FlagsArray } from './types';
+import type { Flag } from './types';
 import { getOverrides } from './overrides';
 import { normalizeOptions } from '../lib/normalize-options';
-import { getPrecomputed, combine, deserialize, evaluate } from './precompute';
+import { getPrecomputed } from './precompute';
 import {
   type ReadonlyHeaders,
   HeadersAdapter,
