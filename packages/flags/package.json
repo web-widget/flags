@@ -1,14 +1,16 @@
 {
   "name": "flags",
-  "version": "4.0.1",
-  "description": "Flags SDK by Vercel - The feature flags toolkit for Next.js and SvelteKit",
+  "version": "4.0.0",
+  "description": "Flags SDK by Vercel - The feature flags toolkit for Next.js, SvelteKit, and Web Router - Enhanced fork with improved Web Router support",
   "keywords": [
     "feature flags",
     "Next.js",
     "react",
     "toolbar",
     "overrides",
-    "SvelteKit"
+    "SvelteKit",
+    "Web Router",
+    "web-widget"
   ],
   "homepage": "https://flags-sdk.dev",
   "bugs": {
@@ -42,6 +44,10 @@
       "svelte": "./dist/sveltekit.js",
       "import": "./dist/sveltekit.js",
       "require": "./dist/sveltekit.cjs"
+    },
+    "./web-router": {
+      "import": "./dist/web-router.js",
+      "require": "./dist/web-router.cjs"
     }
   },
   "typesVersions": {
@@ -61,6 +67,10 @@
       "sveltekit": [
         "dist/sveltekit.d.ts",
         "dist/sveltekit.d.cts"
+      ],
+      "web-router": [
+        "dist/web-router.d.ts",
+        "dist/web-router.d.cts"
       ]
     }
   },
@@ -100,6 +110,8 @@
   "peerDependencies": {
     "@opentelemetry/api": "^1.7.0",
     "@sveltejs/kit": "*",
+    "@web-widget/helpers": "*",
+    "@web-widget/schema": "*",
     "next": "*",
     "react": "*",
     "react-dom": "*"
@@ -109,6 +121,12 @@
       "optional": true
     },
     "@sveltejs/kit": {
+      "optional": true
+    },
+    "@web-widget/helpers": {
+      "optional": true
+    },
+    "@web-widget/schema": {
       "optional": true
     },
     "next": {
@@ -122,6 +140,21 @@
     }
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "name": "@web-widget/flags-kit"
+  },
+  "forkInfo": {
+    "basedOn": "4.0.1",
+    "enhancements": [
+      "Enhanced Web Router integration",
+      "Framework-specific error handling",
+      "Complete Web Router examples",
+      "Consistent API design"
+    ]
+  },
+  "upstream": {
+    "name": "flags",
+    "version": "4.0.1",
+    "repository": "https://github.com/vercel/flags"
   }
 }

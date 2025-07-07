@@ -8,14 +8,12 @@ import { ReflectAdapter } from './reflect';
  * @internal
  */
 export class ReadonlyRequestCookiesError extends Error {
-  constructor() {
-    super(
-      'Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options',
-    );
+  constructor(message: string) {
+    super(message);
   }
 
-  public static callable() {
-    throw new ReadonlyRequestCookiesError();
+  public static callable(message: string) {
+    throw new ReadonlyRequestCookiesError(message);
   }
 }
 
@@ -32,14 +30,17 @@ export type ReadonlyRequestCookies = Omit<
   Pick<ResponseCookies, 'set' | 'delete'>;
 
 export class RequestCookiesAdapter {
-  public static seal(cookies: RequestCookies): ReadonlyRequestCookies {
+  public static seal(
+    cookies: RequestCookies,
+    errorMessage: string,
+  ): ReadonlyRequestCookies {
     return new Proxy(cookies as any, {
       get(target, prop, receiver) {
         switch (prop) {
           case 'clear':
           case 'delete':
           case 'set':
-            return ReadonlyRequestCookiesError.callable;
+            return () => ReadonlyRequestCookiesError.callable(errorMessage);
           default:
             return ReflectAdapter.get(target, prop, receiver);
         }

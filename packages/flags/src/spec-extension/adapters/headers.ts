@@ -8,14 +8,12 @@ import { ReflectAdapter } from './reflect';
  * @internal
  */
 class ReadonlyHeadersError extends Error {
-  constructor() {
-    super(
-      'Headers cannot be modified. Read more: https://nextjs.org/docs/app/api-reference/functions/headers',
-    );
+  constructor(message: string) {
+    super(message);
   }
 
-  public static callable() {
-    throw new ReadonlyHeadersError();
+  public static callable(message: string) {
+    throw new ReadonlyHeadersError(message);
   }
 }
 
@@ -120,14 +118,14 @@ export class HeadersAdapter extends Headers {
    * Seals a Headers instance to prevent modification by throwing an error when
    * any mutating method is called.
    */
-  public static seal(headers: Headers): ReadonlyHeaders {
+  public static seal(headers: Headers, errorMessage: string): ReadonlyHeaders {
     return new Proxy<ReadonlyHeaders>(headers, {
       get(target, prop, receiver) {
         switch (prop) {
           case 'append':
           case 'delete':
           case 'set':
-            return ReadonlyHeadersError.callable;
+            return () => ReadonlyHeadersError.callable(errorMessage);
           default:
             return ReflectAdapter.get(target, prop, receiver);
         }

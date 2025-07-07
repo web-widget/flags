@@ -19,6 +19,7 @@ export default defineConfig({
     sveltekit: 'src/sveltekit/index.ts',
     react: 'src/react/index.tsx',
     analytics: 'src/analytics.ts',
+    'web-router': 'src/web-router/index.ts',
   },
   ...defaultConfig,
 });
