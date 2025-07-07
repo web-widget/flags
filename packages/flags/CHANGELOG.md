@@ -1,5 +1,11 @@
 # @vercel/flags
 
+## 4.1.1
+
+### Patch Changes
+
+- 8dfb878: Delete redundant exports of web-router
+
 ## 4.1.0
 
 ### Minor Changes
