@@ -130,7 +130,7 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../../packages/flags
       js-xxhash:
         specifier: 4.0.0
@@ -209,7 +209,7 @@ importers:
         specifier: 2.0.0
         version: 2.0.0
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../../packages/flags
       nanoid:
         specifier: 5.0.7
@@ -282,7 +282,7 @@ importers:
         specifier: ^0.6.0
         version: 0.6.0
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../../packages/flags
       tailwindcss:
         specifier: 4.0.15
@@ -337,7 +337,7 @@ importers:
         specifier: ^1.59.0
         version: 1.59.0(unctx@2.4.1)
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../../packages/flags
       koa:
         specifier: ^2.16.1
@@ -402,7 +402,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -439,7 +439,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       rimraf:
         specifier: 6.0.1
@@ -479,7 +479,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -519,7 +519,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -559,7 +559,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -599,7 +599,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -635,7 +635,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -668,7 +668,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -708,7 +708,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -741,7 +741,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -787,7 +787,7 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/eslint-config-custom
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../flags
       msw:
         specifier: 2.6.4
@@ -878,7 +878,7 @@ importers:
   tests/next-13:
     dependencies:
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../../packages/flags
       next:
         specifier: 13.5.7
@@ -918,7 +918,7 @@ importers:
   tests/next-14:
     dependencies:
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../../packages/flags
       next:
         specifier: 14.2.17
@@ -955,7 +955,7 @@ importers:
   tests/next-15:
     dependencies:
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../../packages/flags
       next:
         specifier: 15.2.0
@@ -995,7 +995,7 @@ importers:
         specifier: 0.1.36
         version: 0.1.36(@sveltejs/kit@2.20.2)(vite@5.4.14)
       flags:
-        specifier: workspace:*
+        specifier: workspace:@web-widget/flags-kit@*
         version: link:../../packages/flags
     devDependencies:
       '@playwright/test':

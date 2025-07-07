@@ -8,6 +8,7 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
+    "@flags-sdk/*",
     "shirt-shop",
     "svelte-example",
     "web-router-example",
