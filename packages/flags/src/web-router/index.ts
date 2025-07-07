@@ -9,19 +9,11 @@ import {
   safeJsonStringify,
   verifyAccess,
   type FlagDefinitionsType,
-  encryptFlagValues as _encryptFlagValues,
-  decryptFlagValues as _decryptFlagValues,
-  encryptOverrides as _encryptOverrides,
-  decryptOverrides as _decryptOverrides,
-  encryptFlagDefinitions as _encryptFlagDefinitions,
-  decryptFlagDefinitions as _decryptFlagDefinitions,
   version,
 } from '..';
 import type {
   Decide,
   FlagDeclaration,
-  FlagOverridesType,
-  FlagValuesType,
   Identify,
   JsonValue,
   Origin,
@@ -723,45 +715,6 @@ async function handleWellKnownFlagsRoute(
   return Response.json(providerData, {
     headers: { 'x-flags-sdk-version': version },
   });
-}
-
-export async function encryptFlagValues(
-  value: FlagValuesType,
-  secret?: string,
-) {
-  return _encryptFlagValues(value, await tryGetSecret(secret));
-}
-
-export async function decryptFlagValues(
-  encryptedData: string,
-  secret?: string,
-) {
-  return _decryptFlagValues(encryptedData, await tryGetSecret(secret));
-}
-
-export async function encryptOverrides(
-  overrides: FlagOverridesType,
-  secret?: string,
-) {
-  return _encryptOverrides(overrides, await tryGetSecret(secret));
-}
-
-export async function decryptOverrides(encryptedData: string, secret?: string) {
-  return _decryptOverrides(encryptedData, await tryGetSecret(secret));
-}
-
-export async function encryptFlagDefinitions(
-  value: FlagDefinitionsType,
-  secret?: string,
-) {
-  return _encryptFlagDefinitions(value, await tryGetSecret(secret));
-}
-
-export async function decryptFlagDefinitions(
-  encryptedData: string,
-  secret?: string,
-) {
-  return _decryptFlagDefinitions(encryptedData, await tryGetSecret(secret));
 }
 
 /**
