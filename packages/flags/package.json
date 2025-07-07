@@ -1,7 +1,7 @@
 {
-  "name": "flags",
-  "version": "4.0.1",
-  "description": "Flags SDK by Vercel - The feature flags toolkit for Next.js, SvelteKit, and Web Router",
+  "name": "@web-widget/flag-kit",
+  "version": "4.0.0",
+  "description": "Flags SDK by Vercel - The feature flags toolkit for Next.js, SvelteKit, and Web Router - Enhanced fork with improved Web Router support",
   "keywords": [
     "feature flags",
     "Next.js",
@@ -141,5 +141,19 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "forkInfo": {
+    "basedOn": "4.0.1",
+    "enhancements": [
+      "Enhanced Web Router integration",
+      "Framework-specific error handling",
+      "Complete Web Router examples",
+      "Consistent API design"
+    ]
+  },
+  "upstream": {
+    "name": "flags",
+    "version": "4.0.1",
+    "repository": "https://github.com/vercel/flags"
   }
 }

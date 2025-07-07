@@ -12,6 +12,15 @@ From the creators of Next.js, the Flags SDK is a free open-source library that g
 
 See [flags-sdk.dev](https://flags-sdk.dev/) for full docs and examples.
 
+## Fork Differences
+
+This is a fork of the original Vercel Flags SDK with enhanced Web Router support. Key differences from the upstream project:
+
+- **Enhanced Web Router Integration**: Full-featured Web Router support with precomputation, middleware patterns, and intelligent caching
+- **Framework-Specific Error Handling**: Improved error messages and handling tailored for different frameworks
+- **Complete Web Router Examples**: Comprehensive examples demonstrating dashboard pages, marketing pages, and manual approaches
+- **Consistent API Design**: Implementation aligned with Next.js patterns for better developer experience
+
 > Upgrading from version 3? See the [Upgrade to v4](https://github.com/vercel/flags/blob/main/packages/flags/guides/upgrade-to-v4.md) guide.
 
 ## Installation
