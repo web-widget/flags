@@ -13,7 +13,7 @@
   "license": "MIT",
   "scripts": {
     "attw": "turbo attw",
-    "build": "turbo build",
+    "build": "turbo build --filter=!snippets",
     "dev": "turbo dev",
     "lint": "turbo lint -- --max-warnings=0",
     "next-13": "pnpm dev -F next-13",
