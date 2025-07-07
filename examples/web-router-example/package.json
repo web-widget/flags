@@ -22,7 +22,7 @@
     "@web-widget/react": "^1.59.0",
     "@web-widget/web-router": "^1.59.0",
     "@web-widget/web-widget": "^1.59.0",
-    "flags": "workspace:*",
+    "flags": "workspace:@web-widget/flags-kit@*",
     "koa": "^2.16.1",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",

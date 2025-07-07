@@ -13,7 +13,7 @@
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
-		"flags": "workspace:*",
+		"flags": "workspace:@web-widget/flags-kit@*",
 		"@vercel/toolbar": "0.1.36"
 	},
 	"devDependencies": {

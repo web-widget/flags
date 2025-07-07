@@ -10,7 +10,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "flags": "workspace:*",
+    "flags": "workspace:@web-widget/flags-kit@*",
     "next": "15.2.0",
     "react": "19.0.0-rc-02c0e824-20241028",
     "react-dom": "19.0.0-rc-02c0e824-20241028"
