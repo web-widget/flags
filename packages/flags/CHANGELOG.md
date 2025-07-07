@@ -1,5 +1,11 @@
 # @vercel/flags
 
+## 4.1.0
+
+### Minor Changes
+
+- 30ed4dd: feat: support web router
+
 ## 4.0.1
 
 ### Patch Changes
