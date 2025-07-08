@@ -110,7 +110,7 @@
   "peerDependencies": {
     "@opentelemetry/api": "^1.7.0",
     "@sveltejs/kit": "*",
-    "@web-widget/helpers": "*",
+    "@web-widget/context": "*",
     "@web-widget/schema": "*",
     "next": "*",
     "react": "*",
@@ -123,7 +123,7 @@
     "@sveltejs/kit": {
       "optional": true
     },
-    "@web-widget/helpers": {
+    "@web-widget/context": {
       "optional": true
     },
     "@web-widget/schema": {

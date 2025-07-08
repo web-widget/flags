@@ -1,6 +1,6 @@
 import { RequestCookies } from '@edge-runtime/cookies';
 import { MiddlewareContext, MiddlewareHandler } from '@web-widget/schema';
-import { context } from '@web-widget/helpers/context';
+import { context } from '@web-widget/context';
 import {
   type ApiData,
   type FlagDefinitionType,

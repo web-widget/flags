@@ -24,7 +24,7 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('@web-widget/helpers/context', () => ({
+vi.mock('@web-widget/context', () => ({
   context: mocks.context,
 }));
 
