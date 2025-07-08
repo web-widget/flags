@@ -1,5 +1,11 @@
 # @vercel/flags
 
+## 4.1.2
+
+### Patch Changes
+
+- 6614095: Fix package internal dependencies
+
 ## 4.1.1
 
 ### Patch Changes
