@@ -30,7 +30,7 @@ export async function precompute<T extends FlagsArray>(
 ): Promise<string> {
   const values = await evaluate(flags);
   // Try to get secret from context, fallback to env
-  const { context } = await import('@web-widget/helpers/context');
+  const { context } = await import('@web-widget/context');
   const store = context().state._flag;
   const secret = store?.secret ?? process.env.FLAGS_SECRET;
   return serialize(flags, values, secret);

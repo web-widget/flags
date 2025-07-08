@@ -1,4 +1,4 @@
-import { context } from '@web-widget/helpers/context';
+import { context } from '@web-widget/context';
 
 enum Status {
   UNTERMINATED = 0,
