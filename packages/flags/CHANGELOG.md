@@ -1,5 +1,11 @@
 # @vercel/flags
 
+## 4.1.3
+
+### Patch Changes
+
+- 4dfb745: Fix web-router environment check to only inject flag values script tags in Vercel environments, matching Next.js/SvelteKit behavior.
+
 ## 4.1.2
 
 ### Patch Changes
