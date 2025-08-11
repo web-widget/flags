@@ -666,42 +666,57 @@ export function createHandle({
     if (result && result instanceof Response && result.body) {
       const contentType = result.headers.get('content-type')?.toLowerCase();
       if (contentType && contentType.includes('text/html')) {
-        const transformStream = createFlagScriptInjectionTransform(async () => {
-          const store = context().state._flag;
-          if (!store || Object.keys(store.usedFlags).length === 0) return '';
+        // Only inject flag values script in Vercel environments for consistency with other frameworks
+        if (isVercelEnvironment()) {
+          const transformStream = createFlagScriptInjectionTransform(
+            async () => {
+              const store = context().state._flag;
+              if (!store || Object.keys(store.usedFlags).length === 0)
+                return '';
 
-          // This is for reporting which flags were used when this page was generated,
-          // so the value shows up in Vercel Toolbar, without the client ever being
-          // aware of this feature flag.
-          const flagValues = await resolveObjectPromises(store.usedFlags);
+              // This is for reporting which flags were used when this page was generated,
+              // so the value shows up in Vercel Toolbar, without the client ever being
+              // aware of this feature flag.
+              const flagValues = await resolveObjectPromises(store.usedFlags);
 
-          // Create a serialized representation of the flag values using the same
-          // signing mechanism as Next.js, rather than encryption. This ensures
-          // deterministic output across server restarts.
-          const flagsArray = Object.keys(flagValues).map((key) => ({
-            key,
-            options: undefined,
-          }));
-          const serializedFlagValues = await serialize(
-            flagValues,
-            flagsArray,
-            secret!, // secret is guaranteed to be defined at this point
+              // Create a serialized representation of the flag values using the same
+              // signing mechanism as Next.js, rather than encryption. This ensures
+              // deterministic output across server restarts.
+              const flagsArray = Object.keys(flagValues).map((key) => ({
+                key,
+                options: undefined,
+              }));
+              const serializedFlagValues = await serialize(
+                flagValues,
+                flagsArray,
+                secret!, // secret is guaranteed to be defined at this point
+              );
+
+              return safeJsonStringify(serializedFlagValues);
+            },
           );
+          const modifiedBody = result.body.pipeThrough(transformStream);
 
-          return safeJsonStringify(serializedFlagValues);
-        });
-        const modifiedBody = result.body.pipeThrough(transformStream);
-
-        return new Response(modifiedBody, {
-          status: result.status,
-          statusText: result.statusText,
-          headers: result.headers,
-        });
+          return new Response(modifiedBody, {
+            status: result.status,
+            statusText: result.statusText,
+            headers: result.headers,
+          });
+        }
       }
     }
 
     return result;
   };
+}
+
+/**
+ * Checks if the current environment is Vercel (preview or production)
+ * This ensures consistency with other frameworks that only inject flag values in Vercel environments
+ */
+function isVercelEnvironment(): boolean {
+  // Check for Vercel-specific environment variables
+  return !!(process.env.VERCEL || process.env.VERCEL_ENV);
 }
 
 async function handleWellKnownFlagsRoute(
