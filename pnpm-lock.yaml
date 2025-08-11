@@ -833,7 +833,7 @@ importers:
         version: 5.10.0
       react-dom:
         specifier: '*'
-        version: 19.0.0(react@19.2.0-canary-223f81d8-20250707)
+        version: 19.0.0(react@19.2.0-canary-3958d5d8-20250807)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 0.17.3
@@ -855,10 +855,10 @@ importers:
         version: 2.6.4(@types/node@20.11.17)(typescript@5.6.3)
       next:
         specifier: 15.1.4
-        version: 15.1.4(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@19.0.0)(react@19.2.0-canary-223f81d8-20250707)
+        version: 15.1.4(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@19.0.0)(react@19.2.0-canary-3958d5d8-20250807)
       react:
         specifier: canary
-        version: 19.2.0-canary-223f81d8-20250707
+        version: 19.2.0-canary-3958d5d8-20250807
       tsconfig:
         specifier: workspace:*
         version: link:../../tooling/tsconfig
@@ -11963,7 +11963,7 @@ packages:
       - babel-plugin-macros
     dev: false
 
-  /next@15.1.4(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@19.0.0)(react@19.2.0-canary-223f81d8-20250707):
+  /next@15.1.4(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@19.0.0)(react@19.2.0-canary-3958d5d8-20250807):
     resolution: {integrity: sha512-mTaq9dwaSuwwOrcu3ebjDYObekkxRnXpuVL21zotM8qE2W0HBOdVIdg2Li9QjMEZrj73LN96LcWcz62V19FjAg==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
     hasBin: true
@@ -11991,9 +11991,9 @@ packages:
       busboy: 1.6.0
       caniuse-lite: 1.0.30001704
       postcss: 8.4.31
-      react: 19.2.0-canary-223f81d8-20250707
-      react-dom: 19.0.0(react@19.2.0-canary-223f81d8-20250707)
-      styled-jsx: 5.1.6(@babel/core@7.26.10)(react@19.2.0-canary-223f81d8-20250707)
+      react: 19.2.0-canary-3958d5d8-20250807
+      react-dom: 19.0.0(react@19.2.0-canary-3958d5d8-20250807)
+      styled-jsx: 5.1.6(@babel/core@7.26.10)(react@19.2.0-canary-3958d5d8-20250807)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.1.4
       '@next/swc-darwin-x64': 15.1.4
@@ -12869,12 +12869,12 @@ packages:
       scheduler: 0.25.0
     dev: false
 
-  /react-dom@19.0.0(react@19.2.0-canary-223f81d8-20250707):
+  /react-dom@19.0.0(react@19.2.0-canary-3958d5d8-20250807):
     resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
     peerDependencies:
       react: ^19.0.0
     dependencies:
-      react: 19.2.0-canary-223f81d8-20250707
+      react: 19.2.0-canary-3958d5d8-20250807
       scheduler: 0.25.0
 
   /react-dom@19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028):
@@ -12979,8 +12979,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
-  /react@19.2.0-canary-223f81d8-20250707:
-    resolution: {integrity: sha512-PXwfP4qVXFHqicGUiBLtoVGgIZ4tDA/czUu6lTydwd5NekllrOIz9JwrUr4E/Smm+jerwYa0N5igLMvWNlR6Mg==}
+  /react@19.2.0-canary-3958d5d8-20250807:
+    resolution: {integrity: sha512-CSMwokRgyNr6O1eXKtPOqoD0vpOT4KFQIVALpw0iSjOYmCp7ecx2MgUyvI33jGE9dm76TIwORV+N7gQdODPo1g==}
     engines: {node: '>=0.10.0'}
 
   /read-cache@1.0.0:
@@ -13895,7 +13895,7 @@ packages:
       react: 19.0.0-rc.1
     dev: false
 
-  /styled-jsx@5.1.6(@babel/core@7.26.10)(react@19.2.0-canary-223f81d8-20250707):
+  /styled-jsx@5.1.6(@babel/core@7.26.10)(react@19.2.0-canary-3958d5d8-20250807):
     resolution: {integrity: sha512-qSVyDTeMotdvQYoHWLNGwRFJHC+i+ZvdBRYosOFgC+Wg1vx4frN2/RG/NA7SYqqvKNLf39P2LSRA2pu6n0XYZA==}
     engines: {node: '>= 12.0.0'}
     peerDependencies:
@@ -13910,7 +13910,7 @@ packages:
     dependencies:
       '@babel/core': 7.26.10
       client-only: 0.0.1
-      react: 19.2.0-canary-223f81d8-20250707
+      react: 19.2.0-canary-3958d5d8-20250807
     dev: true
 
   /sucrase@3.35.0:
