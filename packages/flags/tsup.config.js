@@ -20,6 +20,7 @@ export default defineConfig({
     react: 'src/react/index.tsx',
     analytics: 'src/analytics.ts',
     'web-router': 'src/web-router/index.ts',
+    'koa-precompute': 'src/koa/precompute.ts',
   },
   ...defaultConfig,
 });

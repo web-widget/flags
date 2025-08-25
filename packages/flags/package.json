@@ -48,6 +48,10 @@
     "./web-router": {
       "import": "./dist/web-router.js",
       "require": "./dist/web-router.cjs"
+    },
+    "./koa-precompute": {
+      "import": "./dist/koa-precompute.js",
+      "require": "./dist/koa-precompute.cjs"
     }
   },
   "typesVersions": {
