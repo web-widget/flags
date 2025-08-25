@@ -19,7 +19,9 @@ export async function evaluate<T extends FlagsArray>(
   flags: T,
   request?: KoaRequest,
 ): Promise<{ [K in keyof T]: Awaited<ReturnType<T[K]>> }> {
-  return Promise.all(flags.map((flag) => flag(request))) as Promise<{
+  return Promise.all(
+    flags.map((flag) => (request ? flag(request) : flag())),
+  ) as Promise<{
     [K in keyof T]: Awaited<ReturnType<T[K]>>;
   }>;
 }
